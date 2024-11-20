@@ -1,0 +1,99 @@
+/* General styles for the body */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f9f9f9;
+}
+
+/* Container for the entire login form */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+/* Login box where the form is placed */
+.login-box {
+    background-color: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+    max-width: 400px; /* Limits the width of the box */
+}
+
+/* Logo styling */
+.login-logo {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin-bottom: 20px;
+}
+
+/* Header styling */
+.login-header {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Sub-text (description) styling */
+.sub-text {
+    font-size: 14px;
+    color: #7a7a7a;
+    margin-bottom: 30px;
+}
+
+/* Input field styles */
+input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+/* Button styling */
+.btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #f7b2d9;
+    border: none;
+    color: white;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Button hover effect */
+#continue-btn:hover {
+    background-color: #e091b6;
+}
+
+/* Sign-up text styling */
+.signup-text {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #7a7a7a;
+}
+
+/* Sign-up link styling */
+.signup-link {
+    color: #f7b2d9;
+    text-decoration: none;
+}
+
+/* Sign-up link hover effect */
+.signup-link:hover {
+    text-decoration: underline;
+}

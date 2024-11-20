@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
+    <link rel="stylesheet" href="Login.css"> <!-- Reuse the same CSS -->
+</head>
+<body>
+    <div class="login-container"> <!-- Using same container as login for centering -->
+        <div class="login-box"> <!-- Same class for box -->
+            <img src="logo.png" alt="logo" class="login-logo"> <!-- Add your logo here -->
+            <h1 class="login-header">Sign Up</h1> <!-- Reused the same header class -->
+            <p class="sub-text">Create your account below</p> <!-- Subtext class reused -->
+
+            <div class="Username-input"> <!-- Class reused for consistency -->
+                <input type="text" placeholder="Email" id="Register-email" class="phone-number-input" required> 
+            </div>
+
+            <div class="Password-input"> <!-- Class reused for consistency -->
+                <input type="password" placeholder="Password" id="Register-password" class="phone-number-input" required>
+            </div>
+            
+            <div class="Password-input"> <!-- Added repeat password field -->
+                <input type="password" placeholder="Confirm Password" id="Confirm-password" class="phone-number-input" required>
+            </div>
+
+            <button id="register-user" class="btn">Sign Up</button> <!-- Reusing button class -->
+
+            <p class="signup-text">Already have an account? <a href="login.html" class="signup-link">Log in</a></p> <!-- Same styling as login page -->
+        </div>
+    </div>
+    <script src="Register.js"></script>
+</body>
+</html>
