@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Feedback - Joe & The Juice</title>
+    <link rel="stylesheet" href="/css/Feedback.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="logo.png" alt="Joe & The Juice Logo">
+            </div>
+            <ul class="nav-links navbar">
+                <li><a href="main.html">Home</a></li>
+                <li><a href="#">Menu</a></li>
+                <li><a href="#">Stores</a></li>
+                <li><a href="#">App</a></li>
+                <li><a href="#">Careers</a></li>
+                <li><a href="#">Event Bookings</a></li>
+                <li><a href="feedback.html" class="active">Feedback</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Feedback kategorier Sektion -->
+    <section class="feedback">
+        <h2>Feedback</h2>
+        <p>Vælg en kategori for at få feedback på dette</p>
+
+        <div class="feedback-buttons">
+            <button onclick="showFeedback('orders')">Ordre</button>
+            <button onclick="showFeedback('performance')">Præstation</button>
+            <button onclick="showFeedback('customer-satisfaction')">Kundetilfredshed</button>
+        </div>
+
+        <div class="feedback-section">
+            <div class="feedback-category" id="orders">
+                <h3>Ordre</h3>
+                <ul>
+                    <li>“feedback på ordre her”</li>
+                </ul>
+            </div>
+
+            <div class="feedback-category hidden" id="performance">
+                <h3>Præstation</h3>
+                <ul>
+                    <li>“Feedback på Præstation her”</li>
+                </ul>
+            </div>
+
+            <div class="feedback-category hidden" id="customer-satisfaction">
+                <h3>Kundetilfredshed</h3>
+                <ul>
+                    <li>“Feedback på kundetilfredshed her”</li>
+                  
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Joe & The Juice. All rights reserved.</p>
+    </footer>
+
+    <script src="/js/script.js"></script>
+</body>
+</html>
