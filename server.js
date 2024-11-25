@@ -5,7 +5,7 @@ const sqlite = require('sqlite3').verbose();
 
 // Initialiser Express
 const app = express();
-const port = 5000;
+const port = 3000;
 
 app.use(express.static('public')) //server will use all the html css and javascript files from here
 
@@ -76,7 +76,7 @@ app.post('/login', (req, res) => {
 });
 
 // Start the server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
