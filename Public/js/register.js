@@ -31,4 +31,4 @@ document.getElementById('register-user').addEventListener('click', async (e) => 
         console.error('Fejl under registrering:', error);
         alert('Der opstod en fejl. Prøv igen.');
     }
-});
+})
