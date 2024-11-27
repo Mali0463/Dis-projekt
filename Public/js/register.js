@@ -1,14 +1,34 @@
-// User Registration
-app.post('/register', (req, res) => {
-    const { username, password } = req.body;
+document.getElementById('register-user').addEventListener('click', async (e) => {
+    e.preventDefault();
 
-    // Check if the username already exists
-    if (users.find(user => user.username === username)) {
-        return res.status(400).json({ error: 'Username already exists' });
+    // Indsaml input data
+    const email = document.getElementById('Register-email').value;
+    const password = document.getElementById('Register-password').value;
+
+    if (!email || !password) {
+        alert('Venligst udfyld begge felter');
+        return;
     }
 
-    // Hash the password and store the user
-    const hashedPassword = hashPassword(password);
-    users.push({ username, password: hashedPassword });
-    res.status(201).json({ message: 'User created successfully' });
+    try {
+        // Send data til serveren via POST-forespørgsel
+        const response = await fetch('http://localhost:3000/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password }),
+        });
+
+        if (response.ok) {
+            alert('Bruger registreret med succes!');
+            window.location.href = '/login.html'; // Omdirigerer til login-siden
+        } else {
+            const errorData = await response.json();
+            alert(`Fejl: ${errorData.error}`);
+        }
+    } catch (error) {
+        console.error('Fejl under registrering:', error);
+        alert('Der opstod en fejl. Prøv igen.');
+    }
 });
