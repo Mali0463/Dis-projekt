@@ -41,9 +41,6 @@ db.run(`CREATE TABLE IF NOT EXISTS users (
 // Login Endpoint
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
-
-    console.log('Login request modtaget:', { email, password }); // Debug punkt
-
     if (!email || !password) {
         console.log('Login mangler email eller adgangskode');
         return res.status(400).json({ error: 'Email og adgangskode er påkrævet' });
