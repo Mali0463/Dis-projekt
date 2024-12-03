@@ -22,7 +22,7 @@
                 <li><a href="#">Careers</a></li>
                 <li><a href="#">Event Bookings</a></li>
                 <li><a href="/feedback.html">Feedback</a></li>
-                <li><a href="/index.html">Logout</a></li>
+                <li><button id="logout-button">Logout</button></li>
             </ul>
         </nav>
     </header>
@@ -59,6 +59,45 @@
             </div>
         </div>
     </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/protected', {
+                method: 'GET',
+                credentials: 'include' // Inkluderer JWT-cookien i anmodningen
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url; // Hvis brugeren bliver omdirigeret, sendes de til den nye URL
+                } else if (!response.ok) {
+                    window.location.href = '/index.html'; // Omdiriger til login-siden, hvis anmodningen fejler
+                }
+            })
+            .catch(error => console.error('Fejl:', error));
+    
+            // Logout-knap funktion
+            const logoutButton = document.getElementById('logout-button');
+            logoutButton.addEventListener('click', async () => {
+                try {
+                    const response = await fetch('/logout', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")}`
+                        }
+                    });
+                    if (response.ok) {
+                        window.location.href = '/index.html';
+                    } else {
+                        console.error('Fejl under logout:', response.statusText);
+                    }
+                } catch (error) {
+                    console.error('Fejl under logout:', error);
+                }
+            });
+        });
+    </script>
+    
 
     <!-- Footer -->
     <footer>

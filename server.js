@@ -4,9 +4,14 @@ const crypto = require('crypto');
 const sqlite3 = require('sqlite3').verbose();
 const bcrypt = require('bcrypt');
 const app = express();
+const util = require('util');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
+require('dotenv').config();
 const port = 3000;
 
 app.use(express.json());
+app.use(cookieParser());
 
 // Serverer statiske filer fra 'public' mappen
 app.use(express.static(path.join(__dirname, 'public')));
@@ -39,42 +44,57 @@ db.run(`CREATE TABLE IF NOT EXISTS users (
 )`);
 
 // Login Endpoint
-app.post('/login', (req, res) => {
+const secretKey = process.env.SECRET_KEY; // Brug miljøvariabel til at sikre nøglen
+
+// Promisify database metoder
+const dbGet = util.promisify(db.get).bind(db);
+
+app.use(cookieParser()); // Brug cookie-parser middleware
+
+app.post('/login', async (req, res) => {
     const { email, password } = req.body;
+
     if (!email || !password) {
-        console.log('Login mangler email eller adgangskode');
         return res.status(400).json({ error: 'Email og adgangskode er påkrævet' });
     }
 
-    db.get(`SELECT * FROM users WHERE email = ?`, [email], async (err, row) => {
-        if (err) {
-            console.error('Databasefejl:', err.message);
-            return res.status(500).json({ error: 'Databasefejl' });
-        }
-
-        console.log('Databaseopslag result:', row); // Debug punkt
+    try {
+        const row = await dbGet(`SELECT * FROM users WHERE email = ?`, [email]);
 
         if (!row) {
-            console.log('Bruger ikke fundet med email:', email);
             return res.status(400).json({ error: 'Ugyldig email eller adgangskode' });
         }
 
-        try {
-            const match = await bcrypt.compare(password, row.password);
-            console.log('Password sammenligning:', match); // Debug punkt
+        const match = await bcrypt.compare(password, row.password);
+        if (match) {
+            // Opret en JWT med brugeroplysninger
+            const token = jwt.sign({ id: row.id, email: row.email }, secretKey, {
+                expiresIn: '1h' // Tokenen udløber efter 1 time
+            });
 
-            if (match) {
-                console.log(`Bruger ${email} logget ind.`);
-                res.status(200).json({ message: 'Login succesfuldt!' });
-            } else {
-                console.log('Adgangskode matcher ikke for bruger:', email);
-                res.status(400).json({ error: 'Ugyldig email eller adgangskode' });
-            }
-        } catch (error) {
-            console.error('Fejl ved adgangskode sammenligning:', error);
-            res.status(500).json({ error: 'Intern serverfejl' });
+            // Send token som en HTTP-Only cookie
+            res.cookie('token', token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production', // Kun over HTTPS
+                sameSite: 'strict',
+                maxAge: 3600000
+            });            
+
+            console.log(`Bruger ${email} logget ind.`);
+            res.status(200).json({ message: 'Login succesfuldt!' });
+        } else {
+            res.status(400).json({ error: 'Ugyldig email eller adgangskode' });
         }
-    });
+    } catch (err) {
+        console.error('Fejl under login:', err.message);
+        res.status(500).json({ error: 'Intern serverfejl' });
+    }
+});
+
+const authenticateToken = require('./public/js/middleware');
+
+app.get('/protected', authenticateToken, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'main.html')); // Send brugeren til main.html, hvis autentificeret
 });
 
 
@@ -109,6 +129,16 @@ app.post('/register', async (req, res) => {
         console.error('Fejl ved registrering:', err);
         res.status(500).json({ error: 'Intern serverfejl' });
     }
+});
+
+
+app.post('/logout', (req, res) => {
+    res.clearCookie('token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict'
+    });
+    res.redirect('/index.html');
 });
 
 

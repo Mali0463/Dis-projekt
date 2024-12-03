@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Joe & The Juice</title>
     <link rel="stylesheet" href="/css/index.css">
-    
 </head>
 <body>
     <header>
@@ -76,45 +75,72 @@
                 window.location.href = "menu.html";
             });
         </script>
-
     </section>
 
     <!-- contact section -->
+    <section class="contact" id="contact">
+        <div class="main-contact">
+            <div class="contact-content">
+                <h4>Services</h4>
+                <li><a href="#home">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#menu">Menu</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </div>
 
-		<section class="contact" id="contact">
-			<div class="main-contact">
-				<div class="contact-content">
-					<h4>Services</h4>
-					<li><a href="#home">Home</a></li>
-					<li><a href="#about">About</a></li>
-					<li><a href="#menu">Menu</a></li>
-					<li><a href="#contact">Contact</a></li>
-				</div>
+            <div class="contact-content">
+                <h4>Delivery</h4>
+                <li><a href="#home">Uber Eats</a></li>
+                <li><a href="#about">DoorDash</a></li>
+                <li><a href="#menu">ChowNow</a></li>
+                <li><a href="#contact">Toast TakeOut</a></li>
+            </div>
 
-				<div class="contact-content">
-					<h4>Delivery</h4>
-					<li><a href="#home">Uber Eats</a></li>
-					<li><a href="#about">DoorDash</a></li>
-					<li><a href="#menu">ChowNow</a></li>
-					<li><a href="#contact">Toast TakeOut</a></li>
-				</div>
+            <div class="contact-content">
+                <h4>Contact</h4>
+                <li><a href="#home">Contact Us</a></li>
+                <li><a href="#about">Press Center</a></li>
+                <li><a href="#menu">Careers</a></li>
+                <li><a href="#contact">FAQ</a></li>
+            </div>
 
-				<div class="contact-content">
-					<h4>Contact</h4>
-					<li><a href="#home">Contact Us</a></li>
-					<li><a href="#about">Press Center</a></li>
-					<li><a href="#menu">Careers</a></li>
-					<li><a href="#contact">FAQ</a></li>
-				</div>
+            <div class="contact-content">
+                <h4>Follow Us</h4>
+                <li><a href="#home">TikTok</a></li>
+                <li><a href="#about">Twitter</a></li>
+                <li><a href="#menu">Facebook</a></li>
+                <li><a href="#menu">Instagram</a></li>
+            </div>
+        </div>
+    </section>
 
-				<div class="contact-content">
-					<h4>Follow Us</h4>
-					<li><a href="#home">TikTok</a></li>
-					<li><a href="#about">Twitter</a></li>
-					<li><a href="#menu">Facebook</a></li>
-					<li><a href="#menu">Instagramm</a></li>
-				</div>
-			</div>
-		</section>
+    <!-- HTML for Cookie Pop-Up -->
+  
+
+    <script>
+               document.addEventListener('DOMContentLoaded', () => {
+            // Check if cookies are already accepted
+            if (!localStorage.getItem('cookiesAccepted')) {
+                // Display alert for cookie consent
+                let consent = confirm('Denne hjemmeside bruger cookies for at sikre, at du får den bedste oplevelse. Vil du acceptere brugen af cookies?');
+                if (consent) {
+                    localStorage.setItem('cookiesAccepted', 'true');
+                } else {
+                    alert('Du skal acceptere cookies for at bruge denne hjemmeside.');
+                    window.location.href = 'https://www.google.com'; // Redirect user if they do not accept cookies
+                }
+            }
+        });
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!localStorage.getItem('cookiesAccepted')) {
+                document.getElementById('cookie-consent').style.display = 'block';
+            }
+
+            document.getElementById('accept-cookies').addEventListener('click', () => {
+                localStorage.setItem('cookiesAccepted', 'true');
+                document.getElementById('cookie-consent').style.display = 'none';
+            });
+        });
+    </script>
 </body>
 </html>
