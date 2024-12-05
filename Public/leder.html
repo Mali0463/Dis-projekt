@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leder Feedback</title>
+    <link rel="stylesheet" href="/css/Feedback.css">
+</head>
+<body>
+    <h1>Manage Feedback</h1>
+
+    <label for="feedbackRecipient">Vælg medarbejder:</label>
+    <select id="feedbackRecipient">
+        <!-- Medarbejdere vil blive tilføjet her via JavaScript -->
+    </select>
+
+    <textarea id="feedbackText" placeholder="Skriv din feedback her..."></textarea>
+    <button id="giveFeedbackButton">Giv Feedback</button>
+
+    <h2>Existing Feedback</h2>
+    <div id="feedback-container">
+        <!-- Feedback vil blive vist her -->
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Hent alle medarbejdere og tilføj til dropdown
+            try {
+                const response = await fetch('/employees');
+                if (response.ok) {
+                    const employees = await response.json();
+                    const recipientSelect = document.getElementById('feedbackRecipient');
+
+                    employees.forEach(employee => {
+                        const option = document.createElement('option');
+                        option.value = employee.email;
+                        option.textContent = employee.email;
+                        recipientSelect.appendChild(option);
+                    });
+                } else {
+                    console.error('Fejl ved hentning af medarbejdere:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Fejl under hentning af medarbejdere:', error);
+            }
+
+            // Giv feedback til medarbejder
+            document.getElementById('giveFeedbackButton').addEventListener('click', async () => {
+                const recipientEmail = document.getElementById('feedbackRecipient').value;
+                const feedbackText = document.getElementById('feedbackText').value.trim();
+
+                if (!recipientEmail || !feedbackText) {
+                    alert('Vælg en medarbejder og skriv feedback.');
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/feedback', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ recipient_email: recipientEmail, feedback: feedbackText }),
+                    });
+
+                    if (response.ok) {
+                        alert('Feedback givet med succes!');
+                        document.getElementById('feedbackText').value = '';
+                    } else {
+                        const errorData = await response.json();
+                        console.error('Fejl ved indsættelse af feedback:', errorData.error);
+                        alert(`Fejl: ${errorData.error}`);
+                    }
+                } catch (error) {
+                    console.error('Intern serverfejl under indsættelse af feedback:', error);
+                    alert('Der opstod en intern serverfejl.');
+                }
+            });
+        });
+    </script>
+
+    <script src="/js/managerFeedback.js"></script>
+</body>
+</html>

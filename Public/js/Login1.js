@@ -1,12 +1,12 @@
 document.getElementById('login-user').addEventListener('click', async (e) => {
     e.preventDefault();
-    console.log("Login-knappen blev trykket"); // Debug punkt 1: Log for at se, om knappen trykkes
+    console.log("Login-knappen blev trykket"); // Debug punkt: Log for at se, om knappen trykkes
 
     // Indsaml input data fra HTML-formularen
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
 
-    console.log("Indsamlede data:", { email, password }); // Debug punkt 2: Log indsamlet data
+    console.log("Indsamlede data:", { email, password }); // Debug punkt: Log indsamlet data
 
     if (!email || !password) {
         alert('Venligst udfyld begge felter');
@@ -23,11 +23,12 @@ document.getElementById('login-user').addEventListener('click', async (e) => {
             body: JSON.stringify({ email, password }),
         });
 
-        console.log("Response status:", response.status); // Debug punkt 3: Log response status
+        console.log("Response status:", response.status); // Debug punkt: Log response status
 
         if (response.ok) {
+            const data = await response.json();
             alert('Login succesfuldt!');
-            window.location.href = '/main.html'; // Omdirigerer til main-siden ved succesfuldt login
+            window.location.href = data.redirectUrl; // Brug den rigtige redirect URL baseret på rollen
         } else {
             const errorData = await response.json();
             console.error("Fejl fra server:", errorData);

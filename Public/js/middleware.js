@@ -1,20 +1,25 @@
 const jwt = require('jsonwebtoken');
-const secretKey = process.env.SECRET_KEY || 'dinSuperHemmeligNøgle';
+const secretKey = process.env.SECRET_KEY;
 
-function authenticateToken(req, res, next) {
-    const token = req.cookies.token; // Få token fra cookie
+const authenticateToken = (req, res, next) => {
+    const token = req.cookies.token;
 
     if (!token) {
-        return res.redirect('/index.html'); // Gå tilbage til forsiden, hvis ingen token findes
+        console.log('Ingen token fundet. Omdirigerer til index.html');
+        return res.redirect('/index.html'); // Omdirigerer til login, hvis der ikke er nogen token
     }
 
     jwt.verify(token, secretKey, (err, user) => {
         if (err) {
-            return res.redirect('/index.html'); // Gå tilbage til forsiden, hvis token ikke er gyldig
+            console.log('Token verificering fejlede:', err.message);
+            return res.redirect('/index.html'); // Omdirigerer til login, hvis token er ugyldig
         }
-        req.user = user; // Gem brugerinfo til brug senere
-        next(); // Fortsæt til den næste middleware
+
+        // Token er verificeret, fortsæt til næste middleware eller route-handler
+        console.log('Token verificeret. Brugeroplysninger:', user);
+        req.user = user;
+        next();
     });
-}
+};
 
 module.exports = authenticateToken;

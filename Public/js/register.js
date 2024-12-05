@@ -4,6 +4,7 @@ document.getElementById('register-user').addEventListener('click', async (e) => 
     // Indsaml input data
     const email = document.getElementById('Register-email').value;
     const password = document.getElementById('Register-password').value;
+    const role = document.getElementById('Register-role').value; // Ny linje for at indsamle rollen
 
     if (!email || !password) {
         alert('Venligst udfyld begge felter');
@@ -17,7 +18,7 @@ document.getElementById('register-user').addEventListener('click', async (e) => 
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ email, password }),
+            body: JSON.stringify({ email, password, role }), // Inkluder rollen i body
         });
 
         if (response.ok) {
@@ -31,4 +32,4 @@ document.getElementById('register-user').addEventListener('click', async (e) => 
         console.error('Fejl under registrering:', error);
         alert('Der opstod en fejl. Prøv igen.');
     }
-})
+});

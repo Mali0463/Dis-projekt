@@ -14,14 +14,7 @@
             </div>
             <div id="menu-icon">☰</div> <!-- Added for the menu toggle -->
             <ul class="nav-links navbar">
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Menu</a></li>
-                <li><a href="#">Stores</a></li>
-                <li><a href="#">App</a></li>
-                <li><a href="#">Careers</a></li>
-                <li><a href="#">Event Bookings</a></li>
-                <li><a href="#"></a></li>
-                <li><a href="/login.html">Sign Up/Login</a></li>
+            <button id="login-user">Login/Signup</button>
             </ul>
         </nav>
     </header>
@@ -38,22 +31,22 @@
         <h2>Most popular products</h2>
         <div class="product-gallery">
             <div class="product-card">
-                <img src="americano.jpg" alt="Americano" class="home-img"> <!-- Added class for ScrollReveal -->
+                <img src="" alt="Americano" class="home-img"> <!-- Added class for ScrollReveal -->
                 <h3>Americano</h3>
                 <button>Add to Basket</button>
             </div>
             <div class="product-card">
-                <img src="power-shake.jpg" alt="Power Shake" class="home-img"> <!-- Added class for ScrollReveal -->
+                <img src="" alt="Power Shake" class="home-img"> <!-- Added class for ScrollReveal -->
                 <h3>Power Shake</h3>
                 <button>Add to Basket</button>
             </div>
             <div class="product-card">
-                <img src="avocado-sandwich.jpg" alt="Avocado Sandwich" class="home-img"> <!-- Added class for ScrollReveal -->
+                <img src="" alt="Avocado Sandwich" class="home-img"> <!-- Added class for ScrollReveal -->
                 <h3>Avocado Sandwich</h3>
                 <button>Add to Basket</button>
             </div>
             <div class="product-card">
-                <img src="prince-of-green.jpg" alt="Prince of Green" class="home-img"> <!-- Added class for ScrollReveal -->
+                <img src="" alt="Prince of Green" class="home-img"> <!-- Added class for ScrollReveal -->
                 <h3>Prince of Green</h3>
                 <button>Add to Basket</button>
             </div>
@@ -61,86 +54,6 @@
     </section>
 
     <script src="https://unpkg.com/scrollreveal"></script> <!-- Added ScrollReveal library -->
-    <script src="/public/js/index.js"></script>
-
-    <section class="products">
-        <a href="#" id="fullMenuBtn">Full Menu</a>
-        <script>
-            // Find knappen ved hjælp af dens id
-            var knap = document.getElementById("fullMenuBtn");
-    
-            // Tilføj en klikhændelse til knappen
-            knap.addEventListener("click", function() {
-                // Viderefør brugeren til et andet HTML-dokument
-                window.location.href = "menu.html";
-            });
-        </script>
-    </section>
-
-    <!-- contact section -->
-    <section class="contact" id="contact">
-        <div class="main-contact">
-            <div class="contact-content">
-                <h4>Services</h4>
-                <li><a href="#home">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#menu">Menu</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </div>
-
-            <div class="contact-content">
-                <h4>Delivery</h4>
-                <li><a href="#home">Uber Eats</a></li>
-                <li><a href="#about">DoorDash</a></li>
-                <li><a href="#menu">ChowNow</a></li>
-                <li><a href="#contact">Toast TakeOut</a></li>
-            </div>
-
-            <div class="contact-content">
-                <h4>Contact</h4>
-                <li><a href="#home">Contact Us</a></li>
-                <li><a href="#about">Press Center</a></li>
-                <li><a href="#menu">Careers</a></li>
-                <li><a href="#contact">FAQ</a></li>
-            </div>
-
-            <div class="contact-content">
-                <h4>Follow Us</h4>
-                <li><a href="#home">TikTok</a></li>
-                <li><a href="#about">Twitter</a></li>
-                <li><a href="#menu">Facebook</a></li>
-                <li><a href="#menu">Instagram</a></li>
-            </div>
-        </div>
-    </section>
-
-    <!-- HTML for Cookie Pop-Up -->
-  
-
-    <script>
-               document.addEventListener('DOMContentLoaded', () => {
-            // Check if cookies are already accepted
-            if (!localStorage.getItem('cookiesAccepted')) {
-                // Display alert for cookie consent
-                let consent = confirm('Denne hjemmeside bruger cookies for at sikre, at du får den bedste oplevelse. Vil du acceptere brugen af cookies?');
-                if (consent) {
-                    localStorage.setItem('cookiesAccepted', 'true');
-                } else {
-                    alert('Du skal acceptere cookies for at bruge denne hjemmeside.');
-                    window.location.href = 'https://www.google.com'; // Redirect user if they do not accept cookies
-                }
-            }
-        });
-        document.addEventListener('DOMContentLoaded', () => {
-            if (!localStorage.getItem('cookiesAccepted')) {
-                document.getElementById('cookie-consent').style.display = 'block';
-            }
-
-            document.getElementById('accept-cookies').addEventListener('click', () => {
-                localStorage.setItem('cookiesAccepted', 'true');
-                document.getElementById('cookie-consent').style.display = 'none';
-            });
-        });
-    </script>
+    <script src="/js/index.js"></script>
 </body>
 </html>
