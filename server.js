@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Serverer statiske filer fra 'public' mappen
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'Public')));
 
 // Forbind til SQLite database
 let db = new sqlite3.Database('./users.db', (err) => {
