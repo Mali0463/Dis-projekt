@@ -3,55 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manager Feedback - Joe & The Juice</title>
     <link rel="stylesheet" href="/css/Feedback.css">
+    <title>Feedback</title>
 </head>
 <body>
-    <!-- Navbar -->
     <header>
         <nav>
             <div class="logo">
                 <img src="logo.png" alt="Joe & The Juice Logo">
             </div>
+            <div id="menu-icon">☰</div>
             <ul class="nav-links navbar">
-                <li><a href="main.html">Home</a></li>
-                <li><a href="#">Menu</a></li>
-                <li><a href="#">Stores</a></li>
-                <li><a href="#">App</a></li>
-                <li><a href="#">Careers</a></li>
-                <li><a href="#">Event Bookings</a></li>
-                <li><a href="feedback.html" class="active">Feedback</a></li>
+                <li><a href="/feedback.html">Feedback</a></li>
                 <li><button id="logout-button">Logout</button></li>
             </ul>
         </nav>
     </header>
 
-    <!-- Feedback kategorier Sektion -->
-    <section class="feedback">
-        <h2>Feedback</h2>
-        <p>Vælg en kategori for at få feedback på dette</p>
+    <h2>Feedback</h2>
+    <div id="feedback-container">
+        <!-- Feedback vil blive vist her -->
+    </div>
 
-        <div class="feedback-buttons">
-            <button onclick="showFeedback('orders')">Teamdynamik</button>
-            <button onclick="showFeedback('performance')">Præstation</button>
-            <button onclick="showFeedback('customer-satisfaction')">Kundetilfredshed</button>
-        </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Hent den aktuelle brugers e-mail fra serveren
+            fetch('/current-user-email')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Kunne ikke hente brugerens e-mail. Log venligst ind igen.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const userEmail = data.email;
 
-        <div class="feedback-section">
-            <section>
-                <h2>Din Feedback</h2>
-                <ul id="feedback-list">
-                    <!-- Feedback vil blive tilføjet her dynamisk -->
-                </ul>
-            </section>
-    </section>
+                    // Hent feedback baseret på brugerens e-mail
+                    return fetch(`/feedback/user?email=${encodeURIComponent(userEmail)}`);
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Fejl ved hentning af feedback.');
+                    }
+                    return response.json();
+                })
+                .then(feedbackData => {
+                    const feedbackContainer = document.getElementById('feedback-container');
+                    feedbackContainer.innerHTML = ''; // Ryd eksisterende feedback
 
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2024 Joe & The Juice. All rights reserved.</p>
-    </footer>
+                    if (feedbackData.length === 0) {
+                        feedbackContainer.textContent = 'Ingen feedback fundet.';
+                    } else {
+                        feedbackData.forEach(item => {
+                            const feedbackItem = document.createElement('p');
+                            feedbackItem.textContent = item.feedback;
+                            feedbackContainer.appendChild(feedbackItem);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Fejl:', error.message);
+                    alert('Kunne ikke hente feedback. Prøv igen senere.');
+                });
 
-    <script src="/js/script.js"></script>
-
+            // Logout-knap funktionalitet
+            document.getElementById('logout-button').addEventListener('click', () => {
+                fetch('/logout', { method: 'POST' })
+                    .then(() => {
+                        window.location.href = '/index.html'; // Send brugeren til forsiden efter logout
+                    })
+                    .catch(error => {
+                        console.error('Fejl under logout:', error.message);
+                    });
+            });
+        });
+    </script>
 </body>
 </html>

@@ -43,6 +43,22 @@ const sr = ScrollReveal({
     reset: true
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    // Find login-knappen
+    const loginButton = document.getElementById('login-user');
+    
+    // Tjek om knappen er fundet
+    if (loginButton) {
+        loginButton.addEventListener('click', (e) => {
+            // Omdiriger til login.html, når knappen trykkes
+            window.location.href = '/login.html';
+        });
+    } else {
+        console.error('Login-knappen kunne ikke findes i DOM\'en. Sørg for, at knappen med ID "login-user" findes.');
+    }
+});
+
+
 sr.reveal('.home-text', { delay: 200, origin: 'left' });
 sr.reveal('.home-img', { delay: 200, origin: 'right' });
 sr.reveal('.container, .about, .menu, .contact', { delay: 200, origin: 'bottom' });
@@ -59,16 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
-document.addEventListener('DOMContentLoaded', () => {
-    if (!localStorage.getItem('cookiesAccepted')) {
-        document.getElementById('cookie-consent').style.display = 'block';
-    }
 
-    document.getElementById('accept-cookies').addEventListener('click', () => {
-        localStorage.setItem('cookiesAccepted', 'true');
-        document.getElementById('cookie-consent').style.display = 'none';
-    });
-});
 
 document.addEventListener('DOMContentLoaded', () => {
     // Find login-knappen

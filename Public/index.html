@@ -54,6 +54,21 @@
     </section>
 
     <script src="https://unpkg.com/scrollreveal"></script> <!-- Added ScrollReveal library -->
+
+    <script>document.addEventListener('DOMContentLoaded', () => {
+        // Check om brugeren tidligere har accepteret cookies
+        if (!localStorage.getItem('cookiesAccepted')) {
+            let acceptCookies = window.confirm("Vi bruger cookies til at forbedre din oplevelse. Accepterer du brugen af cookies?");
+            if (acceptCookies) {
+                localStorage.setItem('cookiesAccepted', 'true');
+            } else {
+                // Hvis brugeren ikke accepterer cookies, omdirigeres de til en anden side eller forhindres adgang
+                alert("Du skal acceptere cookies for at bruge hjemmesiden.");
+                window.location.href = "/"; // Eller hold brugeren på samme side
+            }
+        }
+    });
+    </script>
     <script src="/js/index.js"></script>
 </body>
 </html>

@@ -41,17 +41,15 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Der opstod en fejl under hentning af medarbejdere. Prøv igen.');
         }
     }
-
-    // Funktion til at sende feedback
-    document.getElementById('giveFeedbackButton').addEventListener('click', async () => {
-        const recipientEmail = document.getElementById('feedbackRecipient').value;
-        const feedbackText = document.getElementById('feedbackText').value.trim();
-
+    document.getElementById('submit-feedback').addEventListener('click', async () => {
+        const recipientEmail = document.getElementById('employee-select').value;
+        const feedbackText = document.getElementById('feedback-text').value;
+    
         if (!recipientEmail || !feedbackText) {
-            alert('Begge felter er påkrævet for at give feedback.');
+            alert('Vælg en medarbejder og skriv feedback!');
             return;
         }
-
+    
         try {
             const response = await fetch('/feedback', {
                 method: 'POST',
@@ -60,18 +58,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify({ recipient_email: recipientEmail, feedback: feedbackText }),
             });
-
+    
+            const result = await response.json();
             if (response.ok) {
                 alert('Feedback givet med succes!');
-                loadFeedback(); // Opdater feedback-listen
             } else {
-                const errorData = await response.json();
-                console.error("Fejl fra server:", errorData);
-                alert(`Fejl: ${errorData.error}`);
+                alert(`Fejl: ${result.error}`);
             }
         } catch (error) {
-            console.error('Fejl under indsendelse af feedback:', error);
+            console.error('Fejl under feedback:', error);
             alert('Der opstod en fejl. Prøv igen.');
         }
     });
+    
 });

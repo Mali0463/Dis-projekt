@@ -6,8 +6,6 @@ document.getElementById('login-user').addEventListener('click', async (e) => {
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
 
-    console.log("Indsamlede data:", { email, password }); // Debug punkt: Log indsamlet data
-
     if (!email || !password) {
         alert('Venligst udfyld begge felter');
         return;
@@ -22,8 +20,6 @@ document.getElementById('login-user').addEventListener('click', async (e) => {
             },
             body: JSON.stringify({ email, password }),
         });
-
-        console.log("Response status:", response.status); // Debug punkt: Log response status
 
         if (response.ok) {
             const data = await response.json();

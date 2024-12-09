@@ -8,6 +8,7 @@ const util = require('util');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
+const authenticateToken = require('./public/js/middleware');
 const port = 3000;
 
 app.use(express.json());
@@ -47,9 +48,9 @@ const dbAll = util.promisify(db.all).bind(db);
 const dbRun = util.promisify(db.run).bind(db);
 
 // Login Endpoint
-// Login Endpoint
 const secretKey = process.env.SECRET_KEY; // Brug miljøvariabel til at sikre nøglen
 
+// Login Endpoint i server.js
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
@@ -80,12 +81,8 @@ app.post('/login', async (req, res) => {
                 maxAge: 3600000
             });
 
-            // Log role for debugging
             console.log(`Bruger ${email} logget ind med rollen: ${row.role}`);
-
-            // Send redirect URL baseret på brugerens rolle
-            let redirectUrl = row.role === 'leder' ? '/leder.html' : '/main.html';
-            res.status(200).json({ message: 'Login succesfuldt!', redirectUrl });
+            res.status(200).json({ message: 'Login succesfuldt!', redirectUrl: row.role === 'leder' ? '/leder.html' : '/main.html' });
         } else {
             console.log('Adgangskoden matcher ikke');
             res.status(400).json({ error: 'Ugyldig email eller adgangskode' });
@@ -96,6 +93,10 @@ app.post('/login', async (req, res) => {
     }
 });
 
+//Beskyttet rute til main.html
+app.get('/main.html', authenticateToken, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'main.html'));
+});
 
 // Logout Endpoint
 app.post('/logout', (req, res) => {
@@ -106,6 +107,63 @@ app.post('/logout', (req, res) => {
     });
     res.redirect('/index.html');
 });
+
+// Feedback endpoint
+app.post('/feedback', async (req, res) => {
+    const { recipient_email, feedback } = req.body;
+
+    if (!recipient_email || !feedback) {
+        return res.status(400).json({ error: 'Modtager email og feedback er påkrævet' });
+    }
+
+    try {
+        await dbRun(`INSERT INTO feedback (recipient_email, feedback) VALUES (?, ?)`, [recipient_email, feedback]);
+        console.log(`Feedback givet til ${recipient_email}`);
+        res.status(201).json({ message: 'Feedback givet med succes!' });
+    } catch (err) {
+        console.error('Fejl ved indsættelse af feedback:', err.message);
+        res.status(500).json({ error: 'Intern serverfejl' });
+    }
+});
+
+// Beskyttet rute til main.html uden token
+app.get('/main.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'main.html'));
+});
+
+// Feedback uden token-validering
+app.get('/feedback/user', async (req, res) => {
+    const userEmail = req.query.email; // E-mail sendes som query parameter
+
+    if (!userEmail) {
+        return res.status(400).json({ error: 'Ingen e-mail blev angivet' });
+    }
+
+    try {
+        const feedbacks = await dbAll(`SELECT feedback FROM feedback WHERE recipient_email = ?`, [userEmail]);
+        if (feedbacks.length === 0) {
+            return res.status(404).json({ error: 'Ingen feedback fundet for denne bruger' });
+        }
+        res.status(200).json(feedbacks);
+    } catch (err) {
+        console.error('Fejl under hentning af feedback:', err.message);
+        res.status(500).json({ error: 'Intern serverfejl' });
+    }
+});
+
+
+
+
+app.get('/employees', async (req, res) => {
+    try {
+        const employees = await dbAll(`SELECT email FROM users WHERE role = 'medarbejder'`);
+        res.status(200).json(employees);
+    } catch (err) {
+        console.error('Fejl under hentning af medarbejdere:', err.message);
+        res.status(500).json({ error: 'Intern serverfejl' });
+    }
+});
+
 
 // Start serveren
 app.listen(port, () => {
