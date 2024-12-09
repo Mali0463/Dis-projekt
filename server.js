@@ -8,7 +8,7 @@ const util = require('util');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
-const authenticateToken = require('./public/js/middleware');
+const authenticateToken = require('./js/middleware');
 const port = 3000;
 
 app.use(express.json());
