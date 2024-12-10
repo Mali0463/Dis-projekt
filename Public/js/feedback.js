@@ -1,29 +1,15 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const userEmail = 'y@live.dk'; // Hardcodet test - her skal brugerens e-mail dynamisk indsættes
+app.get('/feedback/user', async (req, res) => {
+    const { email } = req.query;
 
-    fetch(`/feedback/user?email=${encodeURIComponent(userEmail)}`)
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error('Fejl ved hentning af feedback.');
-            }
-            return response.json();
-        })
-        .then((data) => {
-            const feedbackContainer = document.getElementById('feedback-container');
-            feedbackContainer.innerHTML = ''; // Rens tidligere feedback
+    if (!email) {
+        return res.status(400).json({ error: 'Email er påkrævet for at hente feedback.' });
+    }
 
-            if (data.length === 0) {
-                feedbackContainer.textContent = 'Ingen feedback fundet.';
-            } else {
-                data.forEach((item) => {
-                    const feedbackItem = document.createElement('p');
-                    feedbackItem.textContent = item.feedback;
-                    feedbackContainer.appendChild(feedbackItem);
-                });
-            }
-        })
-        .catch((error) => {
-            console.error('Fejl:', error.message);
-            alert('Kunne ikke hente feedback. Prøv igen senere.');
-        });
+    try {
+        const feedbacks = await dbAll(`SELECT feedback FROM feedback WHERE recipient_email = ?`, [email]);
+        res.status(200).json(feedbacks);
+    } catch (err) {
+        console.error('Fejl ved hentning af feedback:', err.message);
+        res.status(500).json({ error: 'Intern serverfejl' });
+    }
 });

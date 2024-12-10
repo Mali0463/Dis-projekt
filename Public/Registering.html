@@ -13,9 +13,10 @@
             <input type="text" id="Register-email" placeholder="Email" required>
             <input type="password" id="Register-password" placeholder="Password" required>
             <label for="Register-role">Vælg rolle:</label>
-            <select id="Register-role">
-            <option value="medarbejder">Medarbejder</option>
-            <option value="leder">Leder</option>
+            <select id="Register-role" required>
+                <option value="" disabled selected>Vælg en rolle</option>
+                <option value="medarbejder">Medarbejder</option>
+                <option value="leder">Leder</option>
             </select>
 
             <button id="register-user" class="btn">Sign Up</button>
@@ -24,3 +25,5 @@
     <script src="/js/register.js"></script>
 </body>
 </html>
+
+

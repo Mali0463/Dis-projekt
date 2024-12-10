@@ -93,6 +93,40 @@ app.post('/login', async (req, res) => {
     }
 });
 
+
+app.post('/register', async (req, res) => {
+    const { email, password, role } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email og adgangskode er påkrævet' });
+    }
+
+    try {
+        // Krypter adgangskoden
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Generér en IV til brug for kryptering
+        const iv = crypto.randomBytes(16).toString('hex');
+
+        // Indsæt brugeren i databasen med IV og rolle
+        const sql = `INSERT INTO users (email, password, iv, role) VALUES (?, ?, ?, ?)`;
+        db.run(sql, [email, hashedPassword, iv, role || 'medarbejder'], function (err) {
+            if (err) {
+                if (err.message.includes('UNIQUE constraint failed')) {
+                    return res.status(400).json({ error: 'Email eksisterer allerede' });
+                }
+                return res.status(500).json({ error: 'Databasefejl: ' + err.message });
+            }
+            console.log(`Bruger tilføjet med email: ${email} og rolle: ${role || 'medarbejder'}`);
+            res.status(201).json({ message: 'Bruger registreret med succes!' });
+        });
+    } catch (err) {
+        console.error('Fejl ved registrering:', err);
+        res.status(500).json({ error: 'Intern serverfejl' });
+    }
+});
+
+
 //Beskyttet rute til main.html
 app.get('/main.html', authenticateToken, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'main.html'));
