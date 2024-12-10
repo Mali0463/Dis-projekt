@@ -160,11 +160,6 @@ app.post('/feedback', async (req, res) => {
     }
 });
 
-// Beskyttet rute til main.html uden token
-app.get('/main.html', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'main.html'));
-});
-
 // Feedback uden token-validering
 app.get('/feedback/user', async (req, res) => {
     const userEmail = req.query.email; // E-mail sendes som query parameter

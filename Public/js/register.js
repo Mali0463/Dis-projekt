@@ -12,13 +12,14 @@ document.getElementById('register-user').addEventListener('click', async (e) => 
 
     try {
         // Send data til serveren via POST-forespørgsel
-        const response = await fetch('http://localhost:3000/register', {
+        const response = await fetch('http://138.197.191.195:3000/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ email, password }),
+            body: JSON.stringify({ email, password, role }),
         });
+        
 
         if (response.ok) {
             alert('Bruger registreret med succes!');
