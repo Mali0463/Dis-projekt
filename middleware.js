@@ -1,24 +1,17 @@
-// middleware.js
 const jwt = require('jsonwebtoken');
-const secretKey = process.env.SECRET_KEY;
 
 const authenticateToken = (req, res, next) => {
-    const token = req.cookies.token;
+    const token = req.cookies.token || req.header('Authorization')?.split(' ')[1];
 
     if (!token) {
-        console.log('Ingen token fundet. Omdirigerer til index.html');
-        return res.redirect('/index.html'); // Omdirigerer til login, hvis der ikke er nogen token
+        return res.status(401).json({ error: 'Adgang nægtet: Token mangler' });
     }
 
-    jwt.verify(token, secretKey, (err, user) => {
+    jwt.verify(token, process.env.SECRET_KEY, (err, user) => {
         if (err) {
-            console.log('Token verificering fejlede:', err.message);
-            return res.redirect('/index.html'); // Omdirigerer til login, hvis token er ugyldig
+            return res.status(403).json({ error: 'Ugyldig token' });
         }
-
-        // Token er verificeret, fortsæt til næste middleware eller route-handler
-        console.log('Token verificeret. Brugeroplysninger:', user);
-        req.user = user;
+        req.user = user; // Tilføjer brugeroplysninger til req-objektet
         next();
     });
 };

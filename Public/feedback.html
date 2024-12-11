@@ -23,44 +23,67 @@
     <div id="feedback-container">
         <!-- Feedback vil blive vist her -->
     </div>
+    <div id="spinner" style="display:none;">Henter feedback...</div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Antag at brugeren er logget ind, og deres email gemmes i localStorage
-            const userEmail = localStorage.getItem('userEmail'); // Gem email ved login
+        document.addEventListener('DOMContentLoaded', async () => {
+            const feedbackContainer = document.getElementById('feedback-container');
+            const spinner = document.getElementById('spinner');
+            spinner.style.display = 'block'; // Viser spinneren
 
-            if (!userEmail) {
-                alert('Bruger ikke logget ind.');
-                window.location.href = '/login.html';
-                return;
-            }
+            try {
+                // Hent token fra cookies
+                const token = document.cookie.split('; ').find(row => row.startsWith('token=')).split('=')[1];
 
-            // Hent feedback for den loggede bruger
-            fetch(`/feedback/user?email=${encodeURIComponent(userEmail)}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Fejl ved hentning af feedback.');
+                if (!token) {
+                    alert('Du er ikke logget ind. Log ind for at se din feedback.');
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                // Send GET-anmodning til backend for at hente feedback
+                const response = await fetch('/feedback/user', {
+                    headers: {
+                        'Authorization': `Bearer ${token}` // Send token i headeren
                     }
-                    return response.json();
-                })
-                .then(data => {
-                    const feedbackContainer = document.getElementById('feedback-container');
-                    feedbackContainer.innerHTML = ''; // Ryd eksisterende feedback
-
-                    if (data.length === 0) {
-                        feedbackContainer.textContent = 'Ingen feedback fundet.';
-                    } else {
-                        data.forEach(item => {
-                            const feedbackItem = document.createElement('p');
-                            feedbackItem.textContent = item.feedback;
-                            feedbackContainer.appendChild(feedbackItem);
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Fejl:', error.message);
-                    alert('Kunne ikke hente feedback. Prøv igen senere.');
                 });
+
+                if (!response.ok) {
+                    throw new Error('Kunne ikke hente feedback. Status: ' + response.status);
+                }
+
+                const data = await response.json();
+                feedbackContainer.innerHTML = ''; // Ryd eksisterende feedback
+
+                if (data.length === 0) {
+                    feedbackContainer.textContent = 'Ingen feedback fundet.';
+                } else {
+                    data.forEach(item => {
+                        const feedbackItem = document.createElement('p');
+                        feedbackItem.textContent = item.feedback;
+                        feedbackContainer.appendChild(feedbackItem);
+                    });
+                }
+            } catch (error) {
+                console.error('Fejl:', error.message);
+                alert('Kunne ikke hente feedback. Prøv igen senere.');
+            } finally {
+                spinner.style.display = 'none'; // Skjul spinneren
+            }
+        });
+
+        // Logout-knap funktionalitet
+        document.getElementById('logout-button').addEventListener('click', () => {
+            fetch('/logout', {
+                method: 'POST'
+            })
+            .then(() => {
+                alert('Du er logget ud.');
+                window.location.href = '/login.html';
+            })
+            .catch(error => {
+                console.error('Fejl ved logout:', error.message);
+            });
         });
     </script>
 </body>

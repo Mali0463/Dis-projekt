@@ -142,8 +142,13 @@ app.post('/logout', (req, res) => {
     res.redirect('/index.html');
 });
 
-// Feedback endpoint
-app.post('/feedback', async (req, res) => {
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'Public', 'index.html')); // Sørg for, at index.html findes i Public-mappen
+});
+
+
+// Feedback endpoint med token validering
+app.post('/feedback', authenticateToken, async (req, res) => {
     const { recipient_email, feedback } = req.body;
 
     if (!recipient_email || !feedback) {
@@ -152,7 +157,7 @@ app.post('/feedback', async (req, res) => {
 
     try {
         await dbRun(`INSERT INTO feedback (recipient_email, feedback) VALUES (?, ?)`, [recipient_email, feedback]);
-        console.log(`Feedback givet til ${recipient_email}`);
+        console.log(`Feedback givet af ${req.user.email} til ${recipient_email}`);
         res.status(201).json({ message: 'Feedback givet med succes!' });
     } catch (err) {
         console.error('Fejl ved indsættelse af feedback:', err.message);
@@ -160,13 +165,8 @@ app.post('/feedback', async (req, res) => {
     }
 });
 
-// Feedback uden token-validering
-app.get('/feedback/user', async (req, res) => {
-    const userEmail = req.query.email; // E-mail sendes som query parameter
-
-    if (!userEmail) {
-        return res.status(400).json({ error: 'Ingen e-mail blev angivet' });
-    }
+app.get('/feedback/user', authenticateToken, async (req, res) => {
+    const userEmail = req.user.email; // E-mail fra token
 
     try {
         const feedbacks = await dbAll(`SELECT feedback FROM feedback WHERE recipient_email = ?`, [userEmail]);
@@ -180,6 +180,10 @@ app.get('/feedback/user', async (req, res) => {
     }
 });
 
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'Public', 'index.html')); // Sørg for, at index.html findes i Public-mappen
+});
 
 
 
@@ -196,5 +200,5 @@ app.get('/employees', async (req, res) => {
 
 // Start serveren
 app.listen(port, () => {
-    console.log(`Serveren kører på http://localhost:${port}`);
+    console.log(`Serveren kører`);
 });
