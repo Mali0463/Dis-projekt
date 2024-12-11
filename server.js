@@ -128,9 +128,31 @@ app.post('/register', async (req, res) => {
 
 
 //Beskyttet rute til main.html
-app.get('/main.html', authenticateToken, (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'main.html'));
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'Public', 'index.html')); // Sørg for, at index.html findes i Public-mappen
 });
+
+app.get('/main.html', authenticateToken, (req, res) => {
+    res.sendFile(path.join(__dirname, 'Public', 'main.html'));
+});
+
+app.get('/registering.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'Public', 'registering.html')); // Sørg for, at filen findes i Public-mappen
+});
+
+app.get('/leder.html', authenticateToken, (req, res) => {
+    res.sendFile(path.join(__dirname, 'Public', 'leder.html'));
+});
+
+app.get('/feedback.html', authenticateToken, (req, res) => {
+    res.sendFile(path.join(__dirname, 'Public', 'main.html'));
+});
+
+app.get('/login.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'Public', 'login.html')); // Sørg for, at filen findes i Public-mappen
+});
+
+
 
 // Logout Endpoint
 app.post('/logout', (req, res) => {
@@ -140,10 +162,6 @@ app.post('/logout', (req, res) => {
         sameSite: 'strict'
     });
     res.redirect('/index.html');
-});
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'Public', 'index.html')); // Sørg for, at index.html findes i Public-mappen
 });
 
 
@@ -179,12 +197,6 @@ app.get('/feedback/user', authenticateToken, async (req, res) => {
         res.status(500).json({ error: 'Intern serverfejl' });
     }
 });
-
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'Public', 'index.html')); // Sørg for, at index.html findes i Public-mappen
-});
-
 
 
 app.get('/employees', async (req, res) => {
