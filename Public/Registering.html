@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -25,6 +26,32 @@
         </form>
         <p>Already have an account? <a href="login.html">Login</a></p>
     </div>
-    <script src="/js/register.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, role }),
+                });
+
+                if (response.ok) {
+                    alert('Registration successful!');
+                    window.location.href = '/login.html';
+                } else {
+                    const errorData = await response.json();
+                    alert(`Error: ${errorData.error}`);
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                alert('Failed to register. Please try again later.');
+            }
+        });
+    </script>
 </body>
 </html>
