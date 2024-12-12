@@ -68,21 +68,19 @@ app.post('/login', async (req, res) => {
 
         const match = await bcrypt.compare(password, row.password);
         if (match) {
-            // Opret en JWT med brugeroplysninger inklusiv rolle
             const token = jwt.sign({ id: row.id, email: row.email, role: row.role }, secretKey, {
-                expiresIn: '1h' // Tokenen udløber efter 1 time
+                expiresIn: '1h'
             });
 
-            // Send token som en HTTP-Only cookie
             res.cookie('token', token, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production', // Kun over HTTPS
+                secure: process.env.NODE_ENV === 'production',
                 sameSite: 'strict',
                 maxAge: 3600000
             });
 
             console.log(`Bruger ${email} logget ind med rollen: ${row.role}`);
-            res.status(200).json({ message: 'Login succesfuldt!', redirectUrl: row.role === 'leder' ? '/leder.html' : '/main.html' });
+            res.status(200).json({ message: 'Login succesfuldt!' });
         } else {
             console.log('Adgangskoden matcher ikke');
             res.status(400).json({ error: 'Ugyldig email eller adgangskode' });
@@ -92,6 +90,7 @@ app.post('/login', async (req, res) => {
         res.status(500).json({ error: 'Intern serverfejl' });
     }
 });
+
 
 
 app.post('/register', async (req, res) => {
