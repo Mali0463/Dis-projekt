@@ -4,87 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feedback</title>
-    <link rel="stylesheet" href="/css/Feedback.css">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="logo">
-                <img src="logo.png" alt="Joe & The Juice Logo">
-            </div>
-            <div id="menu-icon">☰</div>
-            <ul class="nav-links navbar">
-                <li><a href="/feedback.html">Feedback</a></li>
-                <li><button id="logout-button">Logout</button></li>
-            </ul>
-        </nav>
-    </header>
-    <h2>Feedback</h2>
-    <div id="feedback-container">
-        <!-- Feedback vil blive vist her -->
-    </div>
-    <div id="spinner" style="display:none;">Henter feedback...</div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const feedbackContainer = document.getElementById('feedback-container');
-            const spinner = document.getElementById('spinner');
-            spinner.style.display = 'block'; // Viser spinneren
-
-            try {
-                // Hent token fra cookies
-                const token = document.cookie.split('; ').find(row => row.startsWith('token=')).split('=')[1];
-
-                if (!token) {
-                    alert('Du er ikke logget ind. Log ind for at se din feedback.');
-                    window.location.href = '/login.html';
-                    return;
-                }
-
-                // Send GET-anmodning til backend for at hente feedback
-                const response = await fetch('/feedback/user', {
-                    headers: {
-                        'Authorization': `Bearer ${token}` // Send token i headeren
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Kunne ikke hente feedback. Status: ' + response.status);
-                }
-
-                const data = await response.json();
-                feedbackContainer.innerHTML = ''; // Ryd eksisterende feedback
-
-                if (data.length === 0) {
-                    feedbackContainer.textContent = 'Ingen feedback fundet.';
-                } else {
-                    data.forEach(item => {
-                        const feedbackItem = document.createElement('p');
-                        feedbackItem.textContent = item.feedback;
-                        feedbackContainer.appendChild(feedbackItem);
-                    });
-                }
-            } catch (error) {
-                console.error('Fejl:', error.message);
-                alert('Kunne ikke hente feedback. Prøv igen senere.');
-            } finally {
-                spinner.style.display = 'none'; // Skjul spinneren
-            }
-        });
-
-        // Logout-knap funktionalitet
-        document.getElementById('logout-button').addEventListener('click', () => {
-            fetch('/logout', {
-                method: 'POST'
-            })
-            .then(() => {
-                alert('Du er logget ud.');
-                window.location.href = '/login.html';
-            })
-            .catch(error => {
-                console.error('Fejl ved logout:', error.message);
-            });
-        });
-    </script>
+    <h1>Feedback</h1>
+    <ul id="feedback-list"></ul>
+    <button id="logout-button">Logout</button>
+    <script src="/js/feedback.js"></script>
 </body>
 </html>

@@ -1,39 +1,27 @@
-document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
-    e.preventDefault(); // Forhindrer sideopdatering
-
-    const recipientEmail = document.getElementById('recipientEmail').value;
-    const feedback = document.getElementById('feedback').value;
-
-    // Simple validering
-    if (!recipientEmail || !feedback) {
-        alert('Alle felter skal udfyldes!');
-        return;
-    }
-
+document.addEventListener('DOMContentLoaded', async () => {
     try {
-        // Hent token fra cookies (hvis den gemmes der)
-        const token = document.cookie.split('; ').find(row => row.startsWith('token=')).split('=')[1];
-
-        // Send POST-request til serveren
-        const response = await fetch('/feedback', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` // Token i headeren
-            },
-            body: JSON.stringify({ recipient_email: recipientEmail, feedback })
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            document.getElementById('feedbackResponse').innerText = data.message;
-            document.getElementById('feedbackForm').reset(); // Nulstil formularen
-        } else {
-            document.getElementById('feedbackResponse').innerText = data.error || 'Der opstod en fejl';
+        const response = await fetch('/feedback/user');
+        if (!response.ok) {
+            throw new Error('Kunne ikke hente feedback.');
         }
+
+        const feedbacks = await response.json();
+        const feedbackList = document.getElementById('feedback-list');
+        feedbackList.innerHTML = '';
+
+        feedbacks.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item.feedback;
+            feedbackList.appendChild(li);
+        });
     } catch (err) {
-        console.error('Fejl ved feedback:', err);
-        document.getElementById('feedbackResponse').innerText = 'Der opstod en fejl ved afsendelse af feedback';
+        console.error('Fejl:', err);
+        alert('Kunne ikke hente feedback. Prøv igen senere.');
     }
+});
+
+document.getElementById('logout-button').addEventListener('click', () => {
+    fetch('/logout', { method: 'POST' })
+        .then(() => (window.location.href = '/login.html'))
+        .catch(err => console.error('Fejl under logout:', err));
 });

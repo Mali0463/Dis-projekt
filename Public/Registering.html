@@ -3,27 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signup</title>
-    <link rel="stylesheet" href="/css/Login.css">
+    <title>Registrering</title>
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-box">
-            <h1 class="login-header">Sign Up</h1>
-            <input type="text" id="Register-email" placeholder="Email" required>
-            <input type="password" id="Register-password" placeholder="Password" required>
-            <label for="Register-role">Vælg rolle:</label>
-            <select id="Register-role" required>
-                <option value="" disabled selected>Vælg en rolle</option>
-                <option value="medarbejder">Medarbejder</option>
-                <option value="leder">Leder</option>
-            </select>
-
-            <button id="register-user" class="btn">Sign Up</button>
-        </div>
+    <div class="register-container">
+        <h1>Registrering</h1>
+        <input type="email" id="Register-email" placeholder="Email" required>
+        <input type="password" id="Register-password" placeholder="Adgangskode" required>
+        <label for="Register-role">Vælg Rolle:</label>
+        <select id="Register-role">
+            <option value="medarbejder">Medarbejder</option>
+            <option value="leder">Leder</option>
+        </select>
+        <button id="register-user">Registrér</button>
     </div>
     <script src="/js/register.js"></script>
 </body>
 </html>
-
-
