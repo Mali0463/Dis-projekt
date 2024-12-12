@@ -6,18 +6,17 @@
     <link rel="stylesheet" href="/css/Login.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Login</h1>
-        <form id="loginForm">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
-
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-
-            <button type="submit">Login</button>
-        </form>
-        <p>Don't have an account? <a href="registering.html">Sign up</a></p>
+    <div class="login-container">
+    <div class="login-box">
+        <h1 class="login-header">Welcome Back!</h1>
+        <input type="text" id="login-email" placeholder="Email" required>
+        <input type="password" id="login-password" placeholder="Password" required>
+        <button id="login-user" class="btn">Login</button>
+        <p class="signup-text">
+            Don't have an account? 
+            <a href="/registering.html" class="signup-link">Sign up here</a>
+        </p>
+    </div>
     </div>
     <script src="/js/Login1.js"></script>
 </body>
