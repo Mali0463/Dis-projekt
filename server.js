@@ -17,6 +17,13 @@ app.use(cookieParser());
 // Serverer statiske filer fra 'public' mappen
 app.use(express.static(path.join(__dirname, 'Public')));
 
+app.use((req, res, next) => {
+    if (process.env.NODE_ENV === 'production' && !req.secure) {
+        return res.redirect('https://' + req.headers.host + req.url);
+    }
+    next();
+});
+
 // Forbind til SQLite database
 let db = new sqlite3.Database('./users.db', (err) => {
     if (err) {
@@ -150,14 +157,6 @@ app.get('/feedback.html', authenticateToken, (req, res) => {
 app.get('/login.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'Public', 'login.html')); // Sørg for, at filen findes i Public-mappen
 });
-
-app.use((req, res, next) => {
-    if (process.env.NODE_ENV === 'production' && !req.secure) {
-        return res.redirect('https://' + req.headers.host + req.url);
-    }
-    next();
-});
-
 
 
 // Logout Endpoint
