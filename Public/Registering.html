@@ -1,22 +1,29 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrering</title>
-    <link rel="stylesheet" href="/css/styles.css">
+    <title>Sign Up</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="register-container">
-        <h1>Registrering</h1>
-        <input type="email" id="Register-email" placeholder="Email" required>
-        <input type="password" id="Register-password" placeholder="Adgangskode" required>
-        <label for="Register-role">Vælg Rolle:</label>
-        <select id="Register-role">
-            <option value="medarbejder">Medarbejder</option>
-            <option value="leder">Leder</option>
-        </select>
-        <button id="register-user">Registrér</button>
+    <div class="container">
+        <h1>Sign Up</h1>
+        <form id="registerForm">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+
+            <label for="role">Role:</label>
+            <select id="role" name="role">
+                <option value="medarbejder">Medarbejder</option>
+                <option value="leder">Leder</option>
+            </select>
+
+            <button type="submit">Sign Up</button>
+        </form>
+        <p>Already have an account? <a href="login.html">Login</a></p>
     </div>
     <script src="/js/register.js"></script>
 </body>

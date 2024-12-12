@@ -33,7 +33,7 @@
     <script>
      document.addEventListener('DOMContentLoaded', () => {
     // Tjek om token findes
-   /* const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+   const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
 
     if (!token) {
         // Hvis der ikke er nogen token, omdirigeres til login
@@ -41,7 +41,7 @@
         window.location.href = '/index.html';
     } else {
         console.log('Token fundet. Bruger er autentificeret.');
-    }*/
+    }
     
             // Logout-knap funktion
             const logoutButton = document.getElementById('logout-button');

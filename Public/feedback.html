@@ -4,12 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feedback</title>
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <h1>Feedback</h1>
-    <ul id="feedback-list"></ul>
-    <button id="logout-button">Logout</button>
-    <script src="/js/feedback.js"></script>
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="logo.png" alt="Logo">
+            </div>
+            <ul class="nav-links">
+                <li><a href="main.html">Home</a></li>
+                <li><a href="#">Profile</a></li>
+                <li><a href="#">Settings</a></li>
+                <li><a href="/logout">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="feedback">
+            <h1>Feedback</h1>
+            <div id="feedback-list">
+                <p>Loading feedback...</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Fetch user feedback from the server
+                const response = await fetch('/feedback/user', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include' // Include cookies if necessary
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch feedback.');
+                }
+
+                const feedback = await response.json();
+                const feedbackList = document.getElementById('feedback-list');
+
+                if (feedback.length === 0) {
+                    feedbackList.innerHTML = '<p>No feedback available.</p>';
+                } else {
+                    feedbackList.innerHTML = '';
+                    feedback.forEach(item => {
+                        const feedbackDiv = document.createElement('div');
+                        feedbackDiv.classList.add('feedback-item');
+                        feedbackDiv.textContent = item.feedback;
+                        feedbackList.appendChild(feedbackDiv);
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching feedback:', error);
+                document.getElementById('feedback-list').innerHTML = '<p>Error loading feedback. Please try again later.</p>';
+            }
+        });
+    </script>
 </body>
 </html>
