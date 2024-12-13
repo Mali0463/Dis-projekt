@@ -7,31 +7,29 @@
     <link rel="stylesheet" href="/css/Login.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Sign Up</h1>
-        <form id="registerForm">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
-
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-
-            <label for="role">Role:</label>
-            <select id="role" name="role">
+    <div class="login-container">
+        <div class="login-box">
+            <h1 class="login-header">Create an Account</h1>
+            <input type="email" id="signup-email" placeholder="Email" required>
+            <input type="password" id="signup-password" placeholder="Password" required>
+            <select id="signup-role" required>
+                <option value="" disabled selected>Choose Role</option>
                 <option value="medarbejder">Medarbejder</option>
                 <option value="leder">Leder</option>
             </select>
-
-            <button type="submit">Sign Up</button>
-        </form>
-        <p>Already have an account? <a href="login.html">Login</a></p>
+            <button id="signup-user" class="btn">Sign Up</button>
+            <p class="signup-text">
+                Already have an account? 
+                <a href="/login.html" class="signup-link">Login here</a>
+            </p>
+        </div>
     </div>
     <script>
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        document.getElementById('signup-user').addEventListener('click', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const role = document.getElementById('role').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const role = document.getElementById('signup-role').value;
 
             try {
                 const response = await fetch('/register', {
@@ -53,6 +51,5 @@
             }
         });
     </script>
-    <script src="/js/Login1.js"></script>
 </body>
 </html>
