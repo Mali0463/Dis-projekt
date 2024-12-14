@@ -8,7 +8,7 @@ const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const app = express();
-const port = 3000;
+const port = 5000;
 
 // Middleware
 app.use(express.json());
@@ -16,7 +16,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'Public')));
 
 // Database setup
-let db = new sqlite3.Database('./users.db', (err) => {
+let db = new sqlite3.Database('/var/www/app/users.db', (err) => {
     if (err) {
         console.error('Database connection error:', err.message);
     } else {
