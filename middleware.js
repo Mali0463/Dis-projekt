@@ -1,17 +1,15 @@
 const jwt = require('jsonwebtoken');
 
-module.exports = (req, res, next) => {
+// Middleware to authenticate token
+const authenticateToken = (req, res, next) => {
     const token = req.cookies.token;
+    if (!token) return res.status(401).json({ error: 'Access Denied' });
 
-    if (!token) {
-        return res.status(401).json({ error: 'Adgang nægtet. Ingen token fundet.' });
-    }
-
-    jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
-        if (err) {
-            return res.status(403).json({ error: 'Ugyldig token.' });
-        }
-        req.user = decoded; // Gem decoded payload i anmodningen
+    jwt.verify(token, process.env.SECRET_KEY || 'defaultSecretKey', (err, user) => {
+        if (err) return res.status(403).json({ error: 'Invalid Token' });
+        req.user = user;
         next();
     });
 };
+
+module.exports = { authenticateToken };
