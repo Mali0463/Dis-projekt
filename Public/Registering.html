@@ -9,50 +9,28 @@
 <body>
     <div class="login-container">
         <div class="login-box">
-            <h1 class="login-header">Create an Account</h1>
-            <input type="text" id="login-email" placeholder="Email" required>
-            <br>
-            <input type="password" id="login-password" placeholder="Password" required>
-            <select id="signup-role" required>
-                <option value="" disabled selected>Choose Role</option>
-                <option value="medarbejder">Medarbejder</option>
-                <option value="leder">Leder</option>
-            </select>
-            <br>
-            <br>
-            <button id="signup-user" class="btn">Sign Up</button>
+            <h1 class="login-header">Sign Up</h1>
+            <form id="registerForm">
+                <label for="register-email">Email:</label>
+                <input type="email" id="register-email" placeholder="Email" required>
+
+                <label for="register-password">Password:</label>
+                <input type="password" id="register-password" placeholder="Password" required>
+
+                <label for="register-role">Role:</label>
+                <select id="register-role">
+                    <option value="medarbejder">Medarbejder</option>
+                    <option value="leder">Leder</option>
+                </select>
+
+                <button type="submit" class="btn">Sign Up</button>
+            </form>
             <p class="signup-text">
                 Already have an account? 
                 <a href="/login.html" class="signup-link">Login here</a>
             </p>
         </div>
     </div>
-    <script>
-        document.getElementById('signup-user').addEventListener('click', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('signup-email').value;
-            const password = document.getElementById('signup-password').value;
-            const role = document.getElementById('signup-role').value;
-
-            try {
-                const response = await fetch('/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password, role }),
-                });
-
-                if (response.ok) {
-                    alert('Registration successful!');
-                    window.location.href = '/login.html';
-                } else {
-                    const errorData = await response.json();
-                    alert(`Error: ${errorData.error}`);
-                }
-            } catch (err) {
-                console.error('Error:', err);
-                alert('Failed to register. Please try again later.');
-            }
-        });
-    </script>
+    <script src="/js/register.js"></script>
 </body>
 </html>

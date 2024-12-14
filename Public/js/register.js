@@ -1,30 +1,46 @@
-document.getElementById('register-user').addEventListener('click', async (e) => {
+// Hent referencer til inputfelterne og knappen
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const email = document.getElementById('Register-email').value;
-    const password = document.getElementById('Register-password').value;
-    const role = document.getElementById('Register-role').value;
+    // Indsaml input data
+    const email = document.getElementById('register-email').value.trim();
+    const password = document.getElementById('register-password').value.trim();
+    const role = document.getElementById('register-role').value;
 
-    if (!email || !password || !role) {
-        alert('Alle felter skal udfyldes.');
+    // Valider input
+    if (!email || !password) {
+        alert('Venligst udfyld både e-mail og adgangskode.');
+        return;
+    }
+
+    // Simpel e-mail validering
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert('Venligst indtast en gyldig e-mailadresse.');
         return;
     }
 
     try {
+        // Send data til serveren via en POST-forespørgsel
         const response = await fetch('/register', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+            },
             body: JSON.stringify({ email, password, role }),
         });
 
         if (response.ok) {
-            alert('Registrering fuldført!');
+            // Hvis registreringen lykkes, informer brugeren og omdiriger
+            alert('Registrering lykkedes! Du kan nu logge ind.');
             window.location.href = '/login.html';
         } else {
-            const error = await response.json();
-            alert(`Fejl: ${error.error}`);
+            // Håndter fejl fra serveren
+            const errorData = await response.json();
+            alert(`Fejl: ${errorData.error}`);
         }
     } catch (err) {
         console.error('Fejl under registrering:', err);
+        alert('Noget gik galt. Prøv igen senere.');
     }
 });

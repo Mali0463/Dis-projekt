@@ -97,3 +97,29 @@ input[type="text"], input[type="password"] {
 .signup-link:hover {
     text-decoration: underline;
 }
+
+/* Select (dropdown) styles */
+select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 16px;
+    background-color: white;
+}
+
+/* Form labels */
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    color: #333;
+    text-align: left;
+}
+
+/* Adjust button hover for consistency */
+.btn:hover {
+    background-color: #e091b6;
+}

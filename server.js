@@ -3,37 +3,28 @@ const path = require('path');
 const crypto = require('crypto');
 const sqlite3 = require('sqlite3').verbose();
 const bcrypt = require('bcrypt');
-const app = express();
-const util = require('util');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
-const authenticateToken = require('./middleware');
+
+const app = express();
 const port = 3000;
 
+// Middleware
 app.use(express.json());
 app.use(cookieParser());
-
-// Serverer statiske filer fra 'public' mappen
 app.use(express.static(path.join(__dirname, 'Public')));
 
-app.use((req, res, next) => {
-    if (process.env.NODE_ENV === 'production' && !req.secure) {
-        return res.redirect('https://' + req.headers.host + req.url);
-    }
-    next();
-});
-
-// Forbind til SQLite database
+// Database setup
 let db = new sqlite3.Database('./users.db', (err) => {
     if (err) {
-        console.error('Fejl ved forbindelse til database:', err.message);
+        console.error('Database connection error:', err.message);
     } else {
-        console.log('Forbundet til SQLite-databasen users.db');
+        console.log('Connected to SQLite database');
     }
 });
 
-// Opret tabel, hvis den ikke findes allerede
+// Create tables if they don't exist
 db.run(`CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     email TEXT UNIQUE,
@@ -49,91 +40,28 @@ db.run(`CREATE TABLE IF NOT EXISTS feedback (
     FOREIGN KEY (recipient_email) REFERENCES users (email)
 )`);
 
-// Promisify database metoder
+// Promisify SQLite methods
+const util = require('util');
 const dbGet = util.promisify(db.get).bind(db);
 const dbAll = util.promisify(db.all).bind(db);
 const dbRun = util.promisify(db.run).bind(db);
 
-// Login Endpoint
-const secretKey = process.env.SECRET_KEY; // Brug miljøvariabel til at sikre nøglen
+// Secret key for JWT
+const secretKey = process.env.SECRET_KEY;
 
-// Login Endpoint i server.js
-app.post('/login', async (req, res) => {
-    const { email, password } = req.body;
+// Middleware to authenticate token
+const authenticateToken = (req, res, next) => {
+    const token = req.cookies.token;
+    if (!token) return res.status(401).json({ error: 'Access Denied' });
 
-    if (!email || !password) {
-        return res.status(400).json({ error: 'Email og adgangskode er påkrævet' });
-    }
+    jwt.verify(token, secretKey, (err, user) => {
+        if (err) return res.status(403).json({ error: 'Invalid Token' });
+        req.user = user;
+        next();
+    });
+};
 
-    try {
-        const row = await dbGet(`SELECT * FROM users WHERE email = ?`, [email]);
-
-        if (!row) {
-            console.log('Bruger ikke fundet i databasen');
-            return res.status(400).json({ error: 'Ugyldig email eller adgangskode' });
-        }
-
-        const match = await bcrypt.compare(password, row.password);
-        if (match) {
-            const token = jwt.sign({ id: row.id, email: row.email, role: row.role }, secretKey, {
-                expiresIn: '1h'
-            });
-
-            res.cookie('token', token, {
-                httpOnly: true,
-                secure: true,
-                sameSite: 'strict',
-                maxAge: 3600000
-            });
-
-            console.log(`Bruger ${email} logget ind med rollen: ${row.role}`);
-            res.status(200).json({ message: 'Login succesfuldt!' });
-        } else {
-            console.log('Adgangskoden matcher ikke');
-            res.status(400).json({ error: 'Ugyldig email eller adgangskode' });
-        }
-    } catch (err) {
-        console.error('Fejl under login:', err.message);
-        res.status(500).json({ error: 'Intern serverfejl' });
-    }
-});
-
-
-
-app.post('/register', async (req, res) => {
-    const { email, password, role } = req.body;
-
-    if (!email || !password) {
-        return res.status(400).json({ error: 'Email og adgangskode er påkrævet' });
-    }
-
-    try {
-        // Krypter adgangskoden
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Generér en IV til brug for kryptering
-        const iv = crypto.randomBytes(16).toString('hex');
-
-        // Indsæt brugeren i databasen med IV og rolle
-        const sql = `INSERT INTO users (email, password, iv, role) VALUES (?, ?, ?, ?)`;
-        db.run(sql, [email, hashedPassword, iv, role || 'medarbejder'], function (err) {
-            if (err) {
-                if (err.message.includes('UNIQUE constraint failed')) {
-                    return res.status(400).json({ error: 'Email eksisterer allerede' });
-                }
-                return res.status(500).json({ error: 'Databasefejl: ' + err.message });
-            }
-            console.log(`Bruger tilføjet med email: ${email} og rolle: ${role || 'medarbejder'}`);
-            res.status(201).json({ message: 'Bruger registreret med succes!' });
-        });
-    } catch (err) {
-        console.error('Fejl ved registrering:', err);
-        res.status(500).json({ error: 'Intern serverfejl' });
-    }
-});
-
-
-//Beskyttet rute til main.html
+// Routes
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'Public', 'index.html')); // Sørg for, at index.html findes i Public-mappen
 });
@@ -159,63 +87,98 @@ app.get('/login.html', (req, res) => {
 });
 
 
-// Logout Endpoint
+// Login
+app.post('/login', async (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    try {
+        const user = await dbGet(`SELECT * FROM users WHERE email = ?`, [email]);
+        if (!user) {
+            return res.status(400).json({ error: 'Invalid email or password' });
+        }
+
+        const validPassword = await bcrypt.compare(password, user.password);
+        if (!validPassword) {
+            return res.status(400).json({ error: 'Invalid email or password' });
+        }
+
+        const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, secretKey, { expiresIn: '1h' });
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: 3600000,
+        });
+
+        res.status(200).json({ message: 'Login successful', redirectUrl: user.role === 'leder' ? '/leder.html' : '/main.html' });
+    } catch (err) {
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// Register
+app.post('/register', async (req, res) => {
+    const { email, password, role } = req.body;
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const iv = crypto.randomBytes(16).toString('hex');
+
+        await dbRun(`INSERT INTO users (email, password, iv, role) VALUES (?, ?, ?, ?)`, [email, hashedPassword, iv, role || 'medarbejder']);
+        res.status(201).json({ message: 'User registered successfully' });
+    } catch (err) {
+        if (err.message.includes('UNIQUE constraint failed')) {
+            res.status(400).json({ error: 'Email already exists' });
+        } else {
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    }
+});
+
+// Logout
 app.post('/logout', (req, res) => {
     res.clearCookie('token', {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict'
+        secure: true,
+        sameSite: 'strict',
     });
-    res.redirect('/index.html');
+    res.redirect('/');
 });
 
-
-// Feedback endpoint med token validering
+// Feedback
 app.post('/feedback', authenticateToken, async (req, res) => {
     const { recipient_email, feedback } = req.body;
-
     if (!recipient_email || !feedback) {
-        return res.status(400).json({ error: 'Modtager email og feedback er påkrævet' });
+        return res.status(400).json({ error: 'Recipient email and feedback are required' });
     }
 
     try {
         await dbRun(`INSERT INTO feedback (recipient_email, feedback) VALUES (?, ?)`, [recipient_email, feedback]);
-        console.log(`Feedback givet af ${req.user.email} til ${recipient_email}`);
-        res.status(201).json({ message: 'Feedback givet med succes!' });
+        res.status(201).json({ message: 'Feedback submitted successfully' });
     } catch (err) {
-        console.error('Fejl ved indsættelse af feedback:', err.message);
-        res.status(500).json({ error: 'Intern serverfejl' });
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
 app.get('/feedback/user', authenticateToken, async (req, res) => {
-    const userEmail = req.user.email; // E-mail fra token
-
     try {
-        const feedbacks = await dbAll(`SELECT feedback FROM feedback WHERE recipient_email = ?`, [userEmail]);
+        const feedbacks = await dbAll(`SELECT feedback FROM feedback WHERE recipient_email = ?`, [req.user.email]);
         if (feedbacks.length === 0) {
-            return res.status(404).json({ error: 'Ingen feedback fundet for denne bruger' });
+            return res.status(404).json({ error: 'No feedback found for this user' });
         }
         res.status(200).json(feedbacks);
     } catch (err) {
-        console.error('Fejl under hentning af feedback:', err.message);
-        res.status(500).json({ error: 'Intern serverfejl' });
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 
-
-app.get('/employees', async (req, res) => {
-    try {
-        const employees = await dbAll(`SELECT email FROM users WHERE role = 'medarbejder'`);
-        res.status(200).json(employees);
-    } catch (err) {
-        console.error('Fejl under hentning af medarbejdere:', err.message);
-        res.status(500).json({ error: 'Intern serverfejl' });
-    }
-});
-
-
-// Start serveren
+// Start Node.js Server (Local Only)
 app.listen(port, () => {
-    console.log(`Serveren kører`);
+    console.log(`Node.js Server running on port ${port}`);
 });
