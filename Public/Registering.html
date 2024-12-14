@@ -11,24 +11,21 @@
         <div class="login-box">
             <h1 class="login-header">Sign Up</h1>
             <form id="registerForm">
-                <label for="register-email">Email:</label>
-                <input type="email" id="register-email" placeholder="Email" required>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
 
-                <label for="register-password">Password:</label>
-                <input type="password" id="register-password" placeholder="Password" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
 
-                <label for="register-role">Role:</label>
-                <select id="register-role">
+                <label for="role">Role:</label>
+                <select id="role" name="role">
                     <option value="medarbejder">Medarbejder</option>
                     <option value="leder">Leder</option>
                 </select>
 
                 <button type="submit" class="btn">Sign Up</button>
             </form>
-            <p class="signup-text">
-                Already have an account? 
-                <a href="/login.html" class="signup-link">Login here</a>
-            </p>
+            <p class="signup-text">Already have an account? <a href="/login.html" class="signup-link">Login</a></p>
         </div>
     </div>
     <script src="/js/register.js"></script>

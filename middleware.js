@@ -1,19 +1,17 @@
 const jwt = require('jsonwebtoken');
 
-const authenticateToken = (req, res, next) => {
-    const token = req.cookies.token || req.header('Authorization')?.split(' ')[1];
+module.exports = (req, res, next) => {
+    const token = req.cookies.token;
 
     if (!token) {
-        return res.status(401).json({ error: 'Adgang nægtet: Token mangler' });
+        return res.status(401).json({ error: 'Adgang nægtet. Ingen token fundet.' });
     }
 
-    jwt.verify(token, process.env.SECRET_KEY, (err, user) => {
+    jwt.verify(token, process.env.SECRET_KEY, (err, decoded) => {
         if (err) {
-            return res.status(403).json({ error: 'Ugyldig token' });
+            return res.status(403).json({ error: 'Ugyldig token.' });
         }
-        req.user = user; // Tilføjer brugeroplysninger til req-objektet
+        req.user = decoded; // Gem decoded payload i anmodningen
         next();
     });
 };
-
-module.exports = authenticateToken;

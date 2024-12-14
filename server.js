@@ -70,6 +70,7 @@ app.get('/main.html', authenticateToken, (req, res) => {
     res.sendFile(path.join(__dirname, 'Public', 'main.html'));
 });
 
+
 app.get('/registering.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'Public', 'registering.html')); // Sørg for, at filen findes i Public-mappen
 });
@@ -90,59 +91,91 @@ app.get('/login.html', (req, res) => {
 // Login
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
+
     if (!email || !password) {
-        return res.status(400).json({ error: 'Email and password are required' });
+        return res.status(400).json({ error: 'Email og adgangskode er påkrævet' });
     }
 
     try {
+        // Hent brugeren fra databasen
         const user = await dbGet(`SELECT * FROM users WHERE email = ?`, [email]);
         if (!user) {
-            return res.status(400).json({ error: 'Invalid email or password' });
+            return res.status(400).json({ error: 'Ugyldig email eller adgangskode' });
         }
 
+        // Verificer adgangskoden
         const validPassword = await bcrypt.compare(password, user.password);
         if (!validPassword) {
-            return res.status(400).json({ error: 'Invalid email or password' });
+            return res.status(400).json({ error: 'Ugyldig email eller adgangskode' });
         }
 
-        const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, secretKey, { expiresIn: '1h' });
+        // Opret en JWT
+        const token = jwt.sign({ email: user.email, role: user.role }, process.env.SECRET_KEY, {
+            expiresIn: '1h',
+        });
+
+        // Send token som cookie
         res.cookie('token', token, {
             httpOnly: true,
-            secure: true,
+            secure: true, // Sørg for HTTPS i produktionsmiljø
             sameSite: 'strict',
             maxAge: 3600000,
         });
 
-        res.status(200).json({ message: 'Login successful', redirectUrl: user.role === 'leder' ? '/leder.html' : '/main.html' });
+        res.status(200).json({
+            message: 'Login succesfuldt!',
+            redirectUrl: user.role === 'leder' ? '/leder.html' : '/main.html',
+        });
     } catch (err) {
-        res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Fejl:', err.message);
+        res.status(500).json({ error: 'Intern serverfejl' });
     }
 });
+
 
 // Register
 app.post('/register', async (req, res) => {
     const { email, password, role } = req.body;
 
-    if (!email || !password) {
-        return res.status(400).json({ error: 'Email and password are required' });
+    if (!email || !password || !role) {
+        return res.status(400).json({ error: 'Alle felter skal udfyldes' });
     }
 
     try {
+        // Hash adgangskoden
         const hashedPassword = await bcrypt.hash(password, 10);
         const iv = crypto.randomBytes(16).toString('hex');
 
-        await dbRun(`INSERT INTO users (email, password, iv, role) VALUES (?, ?, ?, ?)`, 
-            [email, hashedPassword, iv, role || 'medarbejder']);
-        res.status(201).json({ message: 'User registered successfully' });
+        // Indsæt bruger i databasen
+        await dbRun(
+            `INSERT INTO users (email, password, iv, role) VALUES (?, ?, ?, ?)`,
+            [email, hashedPassword, iv, role]
+        );
+
+        // Opret en JWT
+        const token = jwt.sign({ email, role }, process.env.SECRET_KEY, {
+            expiresIn: '1h',
+        });
+
+        // Returner token som en cookie
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: true, // Sørg for HTTPS i produktionsmiljø
+            sameSite: 'strict',
+            maxAge: 3600000,
+        });
+
+        res.status(201).json({ message: 'Bruger registreret med succes!' });
     } catch (err) {
         if (err.message.includes('UNIQUE constraint failed')) {
-            res.status(400).json({ error: 'Email already exists' });
+            res.status(400).json({ error: 'Email eksisterer allerede' });
         } else {
-            console.error('Error during registration:', err);
-            res.status(500).json({ error: 'Internal Server Error' });
+            console.error('Databasefejl:', err.message);
+            res.status(500).json({ error: 'Intern serverfejl' });
         }
     }
 });
+
 
 
 // Logout
