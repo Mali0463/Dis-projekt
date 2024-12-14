@@ -122,6 +122,7 @@ app.post('/login', async (req, res) => {
 // Register
 app.post('/register', async (req, res) => {
     const { email, password, role } = req.body;
+
     if (!email || !password) {
         return res.status(400).json({ error: 'Email and password are required' });
     }
@@ -130,16 +131,19 @@ app.post('/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         const iv = crypto.randomBytes(16).toString('hex');
 
-        await dbRun(`INSERT INTO users (email, password, iv, role) VALUES (?, ?, ?, ?)`, [email, hashedPassword, iv, role || 'medarbejder']);
+        await dbRun(`INSERT INTO users (email, password, iv, role) VALUES (?, ?, ?, ?)`, 
+            [email, hashedPassword, iv, role || 'medarbejder']);
         res.status(201).json({ message: 'User registered successfully' });
     } catch (err) {
         if (err.message.includes('UNIQUE constraint failed')) {
             res.status(400).json({ error: 'Email already exists' });
         } else {
+            console.error('Error during registration:', err);
             res.status(500).json({ error: 'Internal Server Error' });
         }
     }
 });
+
 
 // Logout
 app.post('/logout', (req, res) => {
