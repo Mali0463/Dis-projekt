@@ -41,7 +41,7 @@
     
         try {
             // Send POST-forespørgsel til serveren
-            const response = await fetch('http://joenthejuice.com/register', { // Opdateret URL
+            const response = await fetch('https://joenthejuice.com/register', { // Opdateret URL
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password, role }),

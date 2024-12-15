@@ -1,4 +1,4 @@
-document.getElementById('registerForm').addEventListener('submit', async (e) => {
+/*document.getElementById('registerForm').addEventListener('submit', async (e) => {
     e.preventDefault(); // Forhindrer standard formularindsendelse
 
     // Hent værdier fra inputfelterne
@@ -32,4 +32,4 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
         console.error('Netværksfejl:', error);
         alert('Der opstod en fejl. Prøv igen senere.');
     }
-});
+});*/
