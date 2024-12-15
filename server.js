@@ -62,28 +62,32 @@ app.get('/', (req, res) => {
 // Registration endpoint
 app.post('/register', async (req, res) => {
     const { email, password, role } = req.body;
+
     if (!email || !password) {
-        return res.status(400).json({ error: 'Email and password required' });
+        return res.status(400).json({ error: 'Email og password er påkrævet' });
     }
 
     try {
-        const existingUser = await dbGet(`SELECT email FROM users WHERE email = ?`, [email]);
+        const existingUser = await db.get(`SELECT email FROM users WHERE email = ?`, [email]);
+
         if (existingUser) {
-            return res.status(400).json({ error: 'Email already exists' });
+            return res.status(400).json({ error: 'Email eksisterer allerede' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        await dbRun(`INSERT INTO users (email, password, role) VALUES (?, ?, ?)`, [
+        await db.run(`INSERT INTO users (email, password, role) VALUES (?, ?, ?)`, [
             email,
             hashedPassword,
-            role || 'medarbejder',
+            role || 'Medarbejder',
         ]);
-        res.status(201).json({ message: 'User registered successfully!' });
+
+        res.status(201).json({ message: 'Bruger oprettet succesfuldt!' });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error during registration' });
+        console.error('Fejl under registrering:', err);
+        res.status(500).json({ error: 'Serverfejl under registrering' });
     }
 });
+
 
 
 // Login endpoint

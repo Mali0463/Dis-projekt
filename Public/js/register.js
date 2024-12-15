@@ -1,35 +1,32 @@
-document.getElementById('register-user').addEventListener('click', async (e) => {
+document.getElementById('register-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // Indsaml input data
-    const email = document.getElementById('Register-email').value;
-    const password = document.getElementById('Register-password').value;
-    const role = document.getElementById('Register-role').value; // Ny linje for at indsamle rollen
+    const email = document.getElementById('register-email').value.trim();
+    const password = document.getElementById('register-password').value.trim();
+    const role = document.getElementById('register-role').value;
 
     if (!email || !password) {
-        alert('Venligst udfyld begge felter');
+        alert('Udfyld venligst både email og password');
         return;
     }
 
     try {
-        // Send data til serveren via POST-forespørgsel
-        const response = await fetch('https://joentheuice.com/register', {
+        const response = await fetch('/register', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password, role }), // Inkluder rollen i body
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password, role }),
         });
 
+        const result = await response.json();
+
         if (response.ok) {
-            alert('Bruger registreret med succes!');
-            window.location.href = '/login.html'; // Omdirigerer til login-siden
+            alert('Bruger oprettet succesfuldt!');
+            window.location.href = '/login.html';
         } else {
-            const errorData = await response.json();
-            alert(`Fejl: ${errorData.error}`);
+            alert(`Fejl: ${result.error}`);
         }
-    } catch (error) {
-        console.error('Fejl under registrering:', error);
-        alert('Der opstod en fejl. Prøv igen.');
+    } catch (err) {
+        console.error('Fejl under registrering:', err);
+        alert('Serverfejl. Prøv igen senere.');
     }
 });
