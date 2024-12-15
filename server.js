@@ -4,7 +4,6 @@ const crypto = require('crypto');
 const sqlite3 = require('sqlite3').verbose();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { authenticateToken } = require('./middleware');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
@@ -49,6 +48,18 @@ const dbRun = util.promisify(db.run).bind(db);
 
 // Secret key for JWT
 const secretKey = process.env.SECRET_KEY || 'defaultSecretKey';
+
+// Middleware to authenticate token
+const authenticateToken = (req, res, next) => {
+    const token = req.cookies.token;
+    if (!token) return res.status(401).json({ error: 'Access Denied' });
+
+    jwt.verify(token, secretKey, (err, user) => {
+        if (err) return res.status(403).json({ error: 'Invalid Token' });
+        req.user = user;
+        next();
+    });
+};
 
 // Routes
 app.get('/', (req, res) => {
