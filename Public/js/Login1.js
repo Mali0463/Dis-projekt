@@ -1,4 +1,4 @@
-document.getElementById('login-user').addEventListener('click', async (e) => {
+/*document.getElementById('login-user').addEventListener('click', async (e) => {
     e.preventDefault();
 
     const email = document.getElementById('login-email').value;
@@ -27,3 +27,4 @@ document.getElementById('login-user').addEventListener('click', async (e) => {
         console.error('Fejl under login:', err);
     }
 });
+*/
