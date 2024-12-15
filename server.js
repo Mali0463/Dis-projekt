@@ -54,6 +54,11 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+// Serve index.html as the start page
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // Registration endpoint
 app.post('/register', async (req, res) => {
     const { email, password, role } = req.body;
