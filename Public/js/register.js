@@ -24,7 +24,7 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
 
     try {
         // Send data til serveren
-        const response = await fetch('/register', {
+        const response = await fetch('https://joentheuice.com/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
