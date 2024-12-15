@@ -14,7 +14,7 @@ const secretKey = process.env.SECRET_KEY || 'default_secret';
 app = express();
 app.use(express.json());
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'Public')));
 
 // Database setup
 let db = new sqlite3.Database('./users.db', (err) => {
@@ -56,7 +56,7 @@ const authenticateToken = (req, res, next) => {
 
 // Serve index.html as the start page
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'Public', 'index.html'));
 });
 
 // Registration endpoint
