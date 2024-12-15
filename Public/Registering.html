@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up</title>
+    <title>Signup</title>
     <link rel="stylesheet" href="/css/Login.css">
 </head>
 <body>
@@ -20,11 +20,37 @@
 
             <button id="register-user" class="btn">Sign Up</button>
         </div>
-        
-            <p class="signup-text">Already have an account? <a href="/login.html" class="signup-link">Login</a></p>
+        <div>
+        <p class="signup-text">Already have an account? <a href="/login.html" class="signup-link">Login</a></p>
         </div>
     </div>
-    <script src="/js/register.js"></script>
+        <script>
+        document.getElementById('register-button').addEventListener('click', async (e) => {
+            e.preventDefault();
+        
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value; // Dropdown for leder/medarbejder
+        
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, role })
+                });
+        
+                const data = await response.json();
+                if (response.ok) {
+                    window.location.href = data.redirectUrl; // Redirect baseret på rolle
+                } else {
+                    alert(data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Registration failed. Try again.');
+            }
+        });
+        </script>
         
 </body>
 </html>

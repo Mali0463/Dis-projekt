@@ -19,6 +19,32 @@
             </p>
         </div>
     </div>
-    <script src="/js/Login1.js"></script> 
+    <script>
+        document.getElementById('login-button').addEventListener('click', async (e) => {
+            e.preventDefault();
+        
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+        
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+        
+                const data = await response.json();
+                if (response.ok) {
+                    window.location.href = data.redirectUrl; // Redirect baseret på rolle
+                } else {
+                    alert(data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Login failed. Try again.');
+            }
+        });
+        </script>
+        
 </body>
 </html>
