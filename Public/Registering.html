@@ -8,22 +8,20 @@
 </head>
 <body>
     <div class="login-container">
-        <div class="login-box">
-            <h1 class="login-header">Sign Up</h1>
-            <form id="registerForm">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-
-                <label for="role">Role:</label>
-                <select id="role" name="role">
-                    <option value="medarbejder">Medarbejder</option>
-                    <option value="leder">Leder</option>
-                </select>
-
-                <button type="submit" class="btn">Sign Up</button>
+        <form id="registerForm">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+        
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        
+            <label for="role">Role:</label>
+            <select id="role" name="role">
+                <option value="medarbejder">Medarbejder</option>
+                <option value="leder">Leder</option>
+            </select>
+        
+            <button type="submit">Sign Up</button>        
             </form>
             <p class="signup-text">Already have an account? <a href="/login.html" class="signup-link">Login</a></p>
         </div>

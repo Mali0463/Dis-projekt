@@ -1,11 +1,29 @@
 document.getElementById('registerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const email = document.getElementById('register-email').value;
-    const password = document.getElementById('register-password').value;
-    const role = document.getElementById('register-role').value;
+    // Find HTML-elementerne
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const roleInput = document.getElementById('role');
+
+    // Tjek om elementerne findes
+    if (!emailInput || !passwordInput || !roleInput) {
+        console.error("Et af inputfelterne blev ikke fundet i DOM'en.");
+        return;
+    }
+
+    // Indsaml data
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    const role = roleInput.value;
+
+    if (!email || !password) {
+        alert('Venligst udfyld alle felter');
+        return;
+    }
 
     try {
+        // Send data til serveren
         const response = await fetch('/register', {
             method: 'POST',
             headers: {
@@ -15,14 +33,14 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
         });
 
         if (response.ok) {
-            alert('Registration successful!');
+            alert('Bruger registreret succesfuldt!');
             window.location.href = '/login.html';
         } else {
             const errorData = await response.json();
-            alert(`Error: ${errorData.error}`);
+            alert(`Fejl: ${errorData.error}`);
         }
-    } catch (err) {
-        console.error('Error during registration:', err);
-        alert('Failed to register. Please try again later.');
+    } catch (error) {
+        console.error('Der opstod en fejl under registreringen:', error);
+        alert('Der opstod en fejl. Prøv igen senere.');
     }
 });
