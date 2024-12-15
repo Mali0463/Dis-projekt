@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
-const authenticateToken = require('./public/js/middleware');
+const authenticateToken = require('./js/middleware');
 const app = express();
 const util = require('util');
 
