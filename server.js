@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const crypto = require('crypto');
 const sqlite3 = require('sqlite3').verbose();
+const { open } = require('sqlite');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
@@ -11,36 +12,36 @@ const util = require('util');
 const port = 5000;
 const secretKey = process.env.SECRET_KEY || 'default_secret';
 
-app = express();
+const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'Public')));
 
-// Database setup
-let db = new sqlite3.Database('./users.db', (err) => {
-    if (err) console.error('Database connection error:', err.message);
-    else console.log('Connected to SQLite database.');
-});
+// SQLite database connection using sqlite3 and sqlite for async/await support
+let db;
+(async () => {
+    db = await open({
+        filename: './users.db',
+        driver: sqlite3.Database
+    });
 
-const dbGet = util.promisify(db.get).bind(db);
-const dbAll = util.promisify(db.all).bind(db);
-const dbRun = util.promisify(db.run).bind(db);
+    console.log('Connected to SQLite database.');
 
-// Initialize tables
-db.run(`CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT UNIQUE,
-    password TEXT,
-    role TEXT NOT NULL DEFAULT 'medarbejder'
-)`);
+    // Initialize tables
+    await db.run(`CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT UNIQUE,
+        password TEXT,
+        role TEXT NOT NULL DEFAULT 'medarbejder'
+    )`);
 
-// Feedback table
-db.run(`CREATE TABLE IF NOT EXISTS feedback (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    recipient_email TEXT NOT NULL,
-    feedback TEXT NOT NULL,
-    FOREIGN KEY (recipient_email) REFERENCES users (email)
-)`);
+    await db.run(`CREATE TABLE IF NOT EXISTS feedback (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        recipient_email TEXT NOT NULL,
+        feedback TEXT NOT NULL,
+        FOREIGN KEY (recipient_email) REFERENCES users (email)
+    )`);
+})();
 
 // Middleware for JWT authentication
 const authenticateToken = (req, res, next) => {
@@ -62,35 +63,35 @@ app.get('/', (req, res) => {
 // Registration endpoint
 app.post('/register', async (req, res) => {
     const { email, password, role } = req.body;
+
     if (!email || !password) {
         return res.status(400).json({ error: 'Email and password required' });
     }
 
     try {
-        const existingUser = await dbGet(`SELECT email FROM users WHERE email = ?`, [email]);
+        const existingUser = await db.get(`SELECT email FROM users WHERE email = ?`, [email]);
         if (existingUser) {
             return res.status(400).json({ error: 'Email already exists' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        await dbRun(`INSERT INTO users (email, password, role) VALUES (?, ?, ?)`, [
+        await db.run(`INSERT INTO users (email, password, role) VALUES (?, ?, ?)`, [
             email,
             hashedPassword,
             role || 'medarbejder',
         ]);
         res.status(201).json({ message: 'User registered successfully!' });
     } catch (err) {
-        console.error(err);
+        console.error('Database error:', err);
         res.status(500).json({ error: 'Server error during registration' });
     }
 });
-
 
 // Login endpoint
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
     try {
-        const user = await dbGet(`SELECT * FROM users WHERE email = ?`, [email]);
+        const user = await db.get(`SELECT * FROM users WHERE email = ?`, [email]);
         if (!user) return res.status(400).json({ error: 'Invalid email or password' });
 
         const isValidPassword = await bcrypt.compare(password, user.password);
@@ -114,7 +115,7 @@ app.get('/current-user', authenticateToken, (req, res) => {
 app.get('/employees', authenticateToken, async (req, res) => {
     if (req.user.role !== 'leder') return res.status(403).json({ error: 'Access Denied' });
     try {
-        const employees = await dbAll(`SELECT email FROM users WHERE role = 'medarbejder'`);
+        const employees = await db.all(`SELECT email FROM users WHERE role = 'medarbejder'`);
         res.json(employees);
     } catch (err) {
         res.status(500).json({ error: 'Failed to fetch employees' });
@@ -126,7 +127,7 @@ app.post('/feedback', authenticateToken, async (req, res) => {
     const { recipient_email, feedback } = req.body;
     if (!recipient_email || !feedback) return res.status(400).json({ error: 'Invalid input' });
     try {
-        await dbRun(`INSERT INTO feedback (recipient_email, feedback) VALUES (?, ?)`, [recipient_email, feedback]);
+        await db.run(`INSERT INTO feedback (recipient_email, feedback) VALUES (?, ?)`, [recipient_email, feedback]);
         res.json({ message: 'Feedback added successfully!' });
     } catch (err) {
         res.status(500).json({ error: 'Failed to add feedback' });
@@ -136,7 +137,7 @@ app.post('/feedback', authenticateToken, async (req, res) => {
 // Fetch feedback for user
 app.get('/feedback/user', authenticateToken, async (req, res) => {
     try {
-        const feedbacks = await dbAll(`SELECT id, feedback FROM feedback WHERE recipient_email = ?`, [req.user.email]);
+        const feedbacks = await db.all(`SELECT id, feedback FROM feedback WHERE recipient_email = ?`, [req.user.email]);
         res.json(feedbacks);
     } catch (err) {
         res.status(500).json({ error: 'Failed to fetch feedback' });
@@ -147,7 +148,7 @@ app.get('/feedback/user', authenticateToken, async (req, res) => {
 app.delete('/feedback/:id', authenticateToken, async (req, res) => {
     const { id } = req.params;
     try {
-        await dbRun(`DELETE FROM feedback WHERE id = ?`, [id]);
+        await db.run(`DELETE FROM feedback WHERE id = ?`, [id]);
         res.json({ message: 'Feedback deleted!' });
     } catch (err) {
         res.status(500).json({ error: 'Failed to delete feedback' });
