@@ -1,4 +1,4 @@
-/*document.getElementById('login-user').addEventListener('click', async (e) => {
+document.getElementById('login-user').addEventListener('click', async (e) => {
     e.preventDefault();
 
     const email = document.getElementById('login-email').value;
@@ -10,7 +10,7 @@
     }
 
     try {
-        const response = await fetch('/login', {
+        const response = await fetch('https://joentheuice.com/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
@@ -27,4 +27,3 @@
         console.error('Fejl under login:', err);
     }
 });
-*/
