@@ -6,13 +6,12 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
-const authenticateToken = require('./js/middleware');
-const app = express();
 const util = require('util');
 
 const port = 5000;
 const secretKey = process.env.SECRET_KEY || 'default_secret';
 
+app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -42,6 +41,18 @@ db.run(`CREATE TABLE IF NOT EXISTS feedback (
     feedback TEXT NOT NULL,
     FOREIGN KEY (recipient_email) REFERENCES users (email)
 )`);
+
+// Middleware for JWT authentication
+const authenticateToken = (req, res, next) => {
+    const token = req.cookies.token;
+    if (!token) return res.status(401).json({ error: 'Access Denied' });
+
+    jwt.verify(token, secretKey, (err, user) => {
+        if (err) return res.status(403).json({ error: 'Invalid Token' });
+        req.user = user;
+        next();
+    });
+};
 
 // Registration endpoint
 app.post('/register', async (req, res) => {
