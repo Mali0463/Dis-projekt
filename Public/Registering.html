@@ -27,35 +27,37 @@
 
     <script>
         document.getElementById('register-button').addEventListener('click', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('register-email').value.trim();
-            const password = document.getElementById('register-password').value.trim();
-            const role = document.getElementById('register-role').value;
+    e.preventDefault();
 
-            if (!email || !password) {
-                alert('Udfyld venligst alle felter.');
-                return;
-            }
+    const email = document.getElementById('register-email').value.trim();
+    const password = document.getElementById('register-password').value.trim();
+    const role = document.getElementById('register-role').value;
 
-            try {
-                const response = await fetch('/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password, role })
-                });
+    if (!email || !password) {
+        alert('Udfyld venligst alle felter.');
+        return;
+    }
 
-                const data = await response.json();
-                if (response.ok) {
-                    alert('Konto oprettet!');
-                    window.location.href = '/login.html';
-                } else {
-                    alert(`Fejl: ${data.error}`);
-                }
-            } catch (err) {
-                console.error('Fejl under oprettelse af konto:', err);
-                alert('Der opstod en fejl. Prøv igen senere.');
-            }
+    try {
+        const response = await fetch('/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password, role }),
         });
+
+        const data = await response.json();
+        if (response.ok) {
+            alert('Konto oprettet!');
+            window.location.href = '/login.html';
+        } else {
+            alert(`Fejl: ${data.error}`);
+        }
+    } catch (err) {
+        console.error('Fejl ved registrering:', err);
+        alert('Der opstod en fejl. Prøv igen senere.');
+    }
+});
+
     </script>
 </body>
 </html>
