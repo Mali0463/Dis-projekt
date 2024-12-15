@@ -1,35 +1,35 @@
-/*document.getElementById('registerForm').addEventListener('submit', async (e) => {
-    e.preventDefault(); // Forhindrer standard formularindsendelse
+document.getElementById('register-user').addEventListener('click', async (e) => {
+    e.preventDefault();
 
-    // Hent værdier fra inputfelterne
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const role = document.getElementById('role').value;
+    // Indsaml input data
+    const email = document.getElementById('Register-email').value;
+    const password = document.getElementById('Register-password').value;
+    const role = document.getElementById('Register-role').value; // Ny linje for at indsamle rollen
 
     if (!email || !password) {
-        alert('Venligst udfyld alle felter');
+        alert('Venligst udfyld begge felter');
         return;
     }
 
     try {
-        // Send POST-forespørgsel til serveren
-        const response = await fetch('http://joenthejuice.com/register', { // Opdateret URL
+        // Send data til serveren via POST-forespørgsel
+        const response = await fetch('http://localhost:3000/register', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password, role }),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password, role }), // Inkluder rollen i body
         });
 
-        const data = await response.json();
-
         if (response.ok) {
-            alert('Bruger oprettet! Du kan nu logge ind.');
-            window.location.href = '/login.html';
+            alert('Bruger registreret med succes!');
+            window.location.href = '/login.html'; // Omdirigerer til login-siden
         } else {
-            console.error('Fejl:', data);
-            alert(`Fejl: ${data.error}`);
+            const errorData = await response.json();
+            alert(`Fejl: ${errorData.error}`);
         }
     } catch (error) {
-        console.error('Netværksfejl:', error);
-        alert('Der opstod en fejl. Prøv igen senere.');
+        console.error('Fejl under registrering:', error);
+        alert('Der opstod en fejl. Prøv igen.');
     }
-});*/
+});
