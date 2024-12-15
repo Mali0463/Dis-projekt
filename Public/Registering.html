@@ -3,54 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signup</title>
+    <title>Opret Konto</title>
     <link rel="stylesheet" href="/css/Login.css">
 </head>
 <body>
     <div class="login-container">
         <div class="login-box">
-            <h1 class="login-header">Sign Up</h1>
-            <input type="text" id="Register-email" placeholder="Email" required>
-            <input type="password" id="Register-password" placeholder="Password" required>
-            <label for="Register-role">Vælg rolle:</label>
-            <select id="Register-role">
-            <option value="medarbejder">Medarbejder</option>
-            <option value="leder">Leder</option>
+            <h1 class="login-header">Opret Konto</h1>
+            <input type="email" id="register-email" placeholder="Email" required>
+            <input type="password" id="register-password" placeholder="Password" required>
+            <label for="register-role">Vælg Rolle:</label>
+            <select id="register-role">
+                <option value="medarbejder">Medarbejder</option>
+                <option value="leder">Leder</option>
             </select>
-
-            <button id="register-user" class="btn">Sign Up</button>
-        </div>
-        <div>
-        <p class="signup-text">Already have an account? <a href="/login.html" class="signup-link">Login</a></p>
+            <button id="register-button" class="btn">Opret Konto</button>
+            <p class="signup-text">
+                Har du allerede en konto? 
+                <a href="/login.html" class="signup-link">Log ind her</a>
+            </p>
         </div>
     </div>
-        <script>
+
+    <script>
         document.getElementById('register-button').addEventListener('click', async (e) => {
             e.preventDefault();
-        
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const role = document.getElementById('role').value; // Dropdown for leder/medarbejder
-        
+            const email = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value.trim();
+            const role = document.getElementById('register-role').value;
+
+            if (!email || !password) {
+                alert('Udfyld venligst alle felter.');
+                return;
+            }
+
             try {
                 const response = await fetch('/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password, role })
                 });
-        
+
                 const data = await response.json();
                 if (response.ok) {
-                    window.location.href = data.redirectUrl; // Redirect baseret på rolle
+                    alert('Konto oprettet!');
+                    window.location.href = '/login.html';
                 } else {
-                    alert(data.error);
+                    alert(`Fejl: ${data.error}`);
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Registration failed. Try again.');
+            } catch (err) {
+                console.error('Fejl under oprettelse af konto:', err);
+                alert('Der opstod en fejl. Prøv igen senere.');
             }
         });
-        </script>
-        
+    </script>
 </body>
 </html>

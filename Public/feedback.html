@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/css/Feedback.css">
     <title>Feedback</title>
+    <link rel="stylesheet" href="/css/Feedback.css">
 </head>
 <body>
     <header>
@@ -12,70 +12,65 @@
             <div class="logo">
                 <img src="logo.png" alt="Joe & The Juice Logo">
             </div>
-            <div id="menu-icon">☰</div>
+            <div id="menu-icon">&#9776;</div>
             <ul class="nav-links navbar">
-                <li><a href="/feedback.html">Feedback</a></li>
+                <li><a href="/feedback.html" class="active">Feedback</a></li>
                 <li><button id="logout-button">Logout</button></li>
             </ul>
         </nav>
     </header>
 
-    <h2>Feedback</h2>
+    <h2>Din Feedback</h2>
     <div id="feedback-container">
         <!-- Feedback vil blive vist her -->
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Hent den aktuelle brugers e-mail fra serveren
-            fetch('/current-user-email')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Kunne ikke hente brugerens e-mail. Log venligst ind igen.');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    const userEmail = data.email;
+        document.addEventListener('DOMContentLoaded', async () => {
+            await fetchFeedback();
+        });
 
-                    // Hent feedback baseret på brugerens e-mail
-                    return fetch(`/feedback/user?email=${encodeURIComponent(userEmail)}`);
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Fejl ved hentning af feedback.');
-                    }
-                    return response.json();
-                })
-                .then(feedbackData => {
-                    const feedbackContainer = document.getElementById('feedback-container');
-                    feedbackContainer.innerHTML = ''; // Ryd eksisterende feedback
+        // Hent feedback til den loggede bruger
+        async function fetchFeedback() {
+            try {
+                const response = await fetch('/feedback/user');
+                if (response.ok) {
+                    const feedbacks = await response.json();
+                    const container = document.getElementById('feedback-container');
+                    container.innerHTML = '';
 
-                    if (feedbackData.length === 0) {
-                        feedbackContainer.textContent = 'Ingen feedback fundet.';
+                    if (feedbacks.length === 0) {
+                        container.innerHTML = '<p>Ingen feedback fundet.</p>';
                     } else {
-                        feedbackData.forEach(item => {
-                            const feedbackItem = document.createElement('p');
+                        feedbacks.forEach(item => {
+                            const feedbackItem = document.createElement('div');
+                            feedbackItem.classList.add('feedback-item');
                             feedbackItem.textContent = item.feedback;
-                            feedbackContainer.appendChild(feedbackItem);
+                            container.appendChild(feedbackItem);
                         });
                     }
-                })
-                .catch(error => {
-                    console.error('Fejl:', error.message);
-                    alert('Kunne ikke hente feedback. Prøv igen senere.');
-                });
+                } else {
+                    alert('Kunne ikke hente feedback. Log venligst ind igen.');
+                    window.location.href = '/login.html';
+                }
+            } catch (err) {
+                console.error('Fejl ved hentning af feedback:', err);
+                alert('Der opstod en fejl. Prøv igen senere.');
+            }
+        }
 
-            // Logout-knap funktionalitet
-            document.getElementById('logout-button').addEventListener('click', () => {
-                fetch('/logout', { method: 'POST' })
-                    .then(() => {
-                        window.location.href = '/index.html'; // Send brugeren til forsiden efter logout
-                    })
-                    .catch(error => {
-                        console.error('Fejl under logout:', error.message);
-                    });
-            });
+        // Logout funktion
+        document.getElementById('logout-button').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/logout', { method: 'POST' });
+                if (response.ok) {
+                    window.location.href = '/login.html';
+                } else {
+                    alert('Kunne ikke logge ud. Prøv igen.');
+                }
+            } catch (err) {
+                console.error('Fejl ved logout:', err);
+            }
         });
     </script>
 </body>

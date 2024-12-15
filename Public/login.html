@@ -9,42 +9,46 @@
 <body>
     <div class="login-container">
         <div class="login-box">
-            <h1 class="login-header">Welcome Back!</h1>
-            <input type="text" id="login-email" placeholder="Email" required>
+            <h1 class="login-header">Velkommen Tilbage!</h1>
+            <input type="email" id="login-email" placeholder="Email" required>
             <input type="password" id="login-password" placeholder="Password" required>
-            <button id="login-user" class="btn">Login</button>
+            <button id="login-button" class="btn">Login</button>
             <p class="signup-text">
-                Don't have an account? 
-                <a href="/registering.html" class="signup-link">Sign up here</a>
+                Har du ikke en konto? 
+                <a href="/registering.html" class="signup-link">Opret dig her</a>
             </p>
         </div>
     </div>
+
     <script>
         document.getElementById('login-button').addEventListener('click', async (e) => {
             e.preventDefault();
-        
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-        
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+
+            if (!email || !password) {
+                alert('Udfyld venligst begge felter.');
+                return;
+            }
+
             try {
                 const response = await fetch('/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
                 });
-        
+
                 const data = await response.json();
                 if (response.ok) {
-                    window.location.href = data.redirectUrl; // Redirect baseret på rolle
+                    window.location.href = data.redirectUrl; // Omdirigerer baseret på rolle
                 } else {
-                    alert(data.error);
+                    alert(`Fejl: ${data.error}`);
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Login failed. Try again.');
+            } catch (err) {
+                console.error('Fejl under login:', err);
+                alert('Der opstod en fejl. Prøv igen senere.');
             }
         });
-        </script>
-        
+    </script>
 </body>
 </html>

@@ -10,10 +10,7 @@
     <!-- Navbar -->
     <header>
         <nav>
-            <div class="logo">
-                <img src="logo.png" alt="Joe & The Juice Logo">
-            </div>
-            <div id="menu-icon">☰</div>
+            <div id="menu-icon">&#9776;</div>
             <ul class="nav-links navbar">
                 <li><a href="/feedback.html">Feedback</a></li>
                 <li><button id="logout-button">Logout</button></li>
@@ -24,48 +21,42 @@
     <!-- Welcome Section -->
     <section class="welcome">
         <div class="welcome-content">
-            <h1>Welcome Back!</h1>
-            <p>What would you like to do today?</p>
+            <h1>Velkommen Tilbage!</h1>
+            <p>Hvad vil du gerne gøre i dag?</p>
         </div>
     </section>
 
-
     <script>
-     document.addEventListener('DOMContentLoaded', () => {
-    // Tjek om token findes
-   /* const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-
-    if (!token) {
-        // Hvis der ikke er nogen token, omdirigeres til login
-        console.log('Ingen token fundet. Omdirigerer til index.html');
-        window.location.href = '/index.html';
-    } else {
-        console.log('Token fundet. Bruger er autentificeret.');
-    }*/
-    
-            // Logout-knap funktion
-            const logoutButton = document.getElementById('logout-button');
-            logoutButton.addEventListener('click', async () => {
-                try {
-                    const response = await fetch('/logout', {
-                        method: 'POST',
-                        credentials: 'include',
-                        headers: {
-                            'Authorization': `Bearer ${document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1")}`
-                        }
-                    });
-                    if (response.ok) {
-                        window.location.href = '/index.html';
-                    } else {
-                        console.error('Fejl under logout:', response.statusText);
-                    }
-                } catch (error) {
-                    console.error('Fejl under logout:', error);
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Validér brugerens JWT-token ved hentning af brugeroplysninger
+            try {
+                const response = await fetch('/current-user');
+                if (!response.ok) {
+                    throw new Error('Session udløbet. Log venligst ind igen.');
                 }
-            });
+                const user = await response.json();
+                console.log('Bruger valideret:', user);
+            } catch (err) {
+                console.error(err);
+                alert('Din session er udløbet. Du bliver omdirigeret til login-siden.');
+                window.location.href = '/login.html';
+            }
+        });
+
+        // Logout-funktionalitet
+        document.getElementById('logout-button').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/logout', { method: 'POST' });
+                if (response.ok) {
+                    window.location.href = '/login.html';
+                } else {
+                    alert('Kunne ikke logge ud. Prøv igen.');
+                }
+            } catch (err) {
+                console.error('Logout fejl:', err);
+            }
         });
     </script>
-    
 
     <!-- Footer -->
     <footer>

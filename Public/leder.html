@@ -11,26 +11,30 @@
 
     <label for="feedbackRecipient">Vælg medarbejder:</label>
     <select id="feedbackRecipient">
-        <!-- Medarbejdere vil blive tilføjet her via JavaScript -->
+        <!-- Medarbejdere tilføjes dynamisk -->
     </select>
 
     <textarea id="feedbackText" placeholder="Skriv din feedback her..."></textarea>
     <button id="giveFeedbackButton">Giv Feedback</button>
 
-    <h2>Existing Feedback</h2>
+    <h2>Eksisterende Feedback</h2>
     <div id="feedback-container">
-        <!-- Feedback vil blive vist her -->
+        <!-- Feedback vises her -->
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-            // Hent alle medarbejdere og tilføj til dropdown
+            await loadEmployees();
+            await loadFeedback();
+        });
+
+        // Hent medarbejderliste
+        async function loadEmployees() {
             try {
                 const response = await fetch('/employees');
                 if (response.ok) {
                     const employees = await response.json();
                     const recipientSelect = document.getElementById('feedbackRecipient');
-
                     employees.forEach(employee => {
                         const option = document.createElement('option');
                         option.value = employee.email;
@@ -38,47 +42,80 @@
                         recipientSelect.appendChild(option);
                     });
                 } else {
-                    console.error('Fejl ved hentning af medarbejdere:', response.statusText);
+                    alert('Kunne ikke hente medarbejdere.');
                 }
-            } catch (error) {
-                console.error('Fejl under hentning af medarbejdere:', error);
+            } catch (err) {
+                console.error('Fejl under hentning af medarbejdere:', err);
+            }
+        }
+
+        // Tilføj feedback
+        document.getElementById('giveFeedbackButton').addEventListener('click', async () => {
+            const recipientEmail = document.getElementById('feedbackRecipient').value;
+            const feedbackText = document.getElementById('feedbackText').value.trim();
+
+            if (!recipientEmail || !feedbackText) {
+                alert('Vælg en medarbejder og skriv feedback.');
+                return;
             }
 
-            // Giv feedback til medarbejder
-            document.getElementById('giveFeedbackButton').addEventListener('click', async () => {
-                const recipientEmail = document.getElementById('feedbackRecipient').value;
-                const feedbackText = document.getElementById('feedbackText').value.trim();
-
-                if (!recipientEmail || !feedbackText) {
-                    alert('Vælg en medarbejder og skriv feedback.');
-                    return;
+            try {
+                const response = await fetch('/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ recipient_email: recipientEmail, feedback: feedbackText })
+                });
+                if (response.ok) {
+                    alert('Feedback givet!');
+                    document.getElementById('feedbackText').value = '';
+                    await loadFeedback();
+                } else {
+                    alert('Kunne ikke sende feedback.');
                 }
-
-                try {
-                    const response = await fetch('/feedback', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ recipient_email: recipientEmail, feedback: feedbackText }),
-                    });
-
-                    if (response.ok) {
-                        alert('Feedback givet med succes!');
-                        document.getElementById('feedbackText').value = '';
-                    } else {
-                        const errorData = await response.json();
-                        console.error('Fejl ved indsættelse af feedback:', errorData.error);
-                        alert(`Fejl: ${errorData.error}`);
-                    }
-                } catch (error) {
-                    console.error('Intern serverfejl under indsættelse af feedback:', error);
-                    alert('Der opstod en intern serverfejl.');
-                }
-            });
+            } catch (err) {
+                console.error('Fejl ved feedback:', err);
+            }
         });
-    </script>
 
-    <script src="/js/managerFeedback.js"></script>
+        // Hent og vis feedback
+        async function loadFeedback() {
+            try {
+                const response = await fetch('/feedback/user');
+                if (response.ok) {
+                    const feedbacks = await response.json();
+                    const container = document.getElementById('feedback-container');
+                    container.innerHTML = '';
+
+                    feedbacks.forEach(item => {
+                        const feedbackDiv = document.createElement('div');
+                        feedbackDiv.innerHTML = `
+                            <p>${item.feedback}</p>
+                            <button onclick="deleteFeedback(${item.id})">Slet</button>
+                        `;
+                        container.appendChild(feedbackDiv);
+                    });
+                } else {
+                    alert('Kunne ikke hente feedback.');
+                }
+            } catch (err) {
+                console.error('Fejl under hentning af feedback:', err);
+            }
+        }
+
+        // Slet feedback
+        async function deleteFeedback(id) {
+            try {
+                const response = await fetch(`/feedback/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    alert('Feedback slettet!');
+                    await loadFeedback();
+                } else {
+                    alert('Kunne ikke slette feedback.');
+                }
+            } catch (err) {
+                console.error('Fejl under sletning:', err);
+            }
+        }
+    </script>
 </body>
 </html>
