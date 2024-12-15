@@ -62,17 +62,29 @@ app.get('/', (req, res) => {
 // Registration endpoint
 app.post('/register', async (req, res) => {
     const { email, password, role } = req.body;
-    if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password required' });
+    }
 
     try {
+        const existingUser = await dbGet(`SELECT email FROM users WHERE email = ?`, [email]);
+        if (existingUser) {
+            return res.status(400).json({ error: 'Email already exists' });
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10);
-        await dbRun(`INSERT INTO users (email, password, role) VALUES (?, ?, ?)`, [email, hashedPassword, role || 'medarbejder']);
+        await dbRun(`INSERT INTO users (email, password, role) VALUES (?, ?, ?)`, [
+            email,
+            hashedPassword,
+            role || 'medarbejder',
+        ]);
         res.status(201).json({ message: 'User registered successfully!' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ error: 'Email already exists or server error' });
+        res.status(500).json({ error: 'Server error during registration' });
     }
 });
+
 
 // Login endpoint
 app.post('/login', async (req, res) => {
