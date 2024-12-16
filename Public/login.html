@@ -23,9 +23,9 @@
     </div>
 
     <script>
-    document.getElementById('login-form').addEventListener('submit', async (e) => {
+   document.getElementById('login-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-
+        
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value.trim();
 
@@ -42,16 +42,19 @@
             });
 
             const data = await response.json();
-            if (response.ok) {
-                alert('Login succesfuld!');
-                localStorage.setItem('token', data.token); // Gem JWT-token
-                localStorage.setItem('role', data.role); // Gem rolle for bruger
 
-                // Omdirigering baseret på rolle
+            if (response.ok) {
+                // Her gemmer du token i localStorage
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('role', data.role);
+
+                alert('Login succesfuld!');
+
+                // Omdiriger baseret på rolle
                 if (data.role === 'leder') {
-                    window.location.href = '/leder.html';
+                    window.location.href = '/leder';
                 } else if (data.role === 'medarbejder') {
-                    window.location.href = '/main.html';
+                    window.location.href = '/main';
                 }
             } else {
                 alert(`Fejl: ${data.error || 'Serverfejl'}`);
