@@ -61,13 +61,17 @@ app.get('/', (req, res) => {
 
 // Registration endpoint
 app.post('/register', async (req, res) => {
-    const { email, password, role } = req.body;
+    let { email, password, role } = req.body;
+
+    // Normalisering og validering af e-mail
+    email = email.trim().toLowerCase();  // Fjern mellemrum og brug små bogstaver
 
     if (!email || !password) {
         return res.status(400).json({ error: 'Email og password er påkrævet' });
     }
 
     try {
+        console.log('Modtaget email:', email); // Debugging: Log e-mailen
         const existingUser = await db.get(`SELECT email FROM users WHERE email = ?`, [email]);
 
         if (existingUser) {
@@ -78,7 +82,7 @@ app.post('/register', async (req, res) => {
         await db.run(`INSERT INTO users (email, password, role) VALUES (?, ?, ?)`, [
             email,
             hashedPassword,
-            role || 'Medarbejder',
+            role || 'medarbejder',
         ]);
 
         res.status(201).json({ message: 'Bruger oprettet succesfuldt!' });
@@ -87,6 +91,7 @@ app.post('/register', async (req, res) => {
         res.status(500).json({ error: 'Serverfejl under registrering' });
     }
 });
+
 
 
 
