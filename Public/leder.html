@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/Feedback.css">
     <title>Leder Panel</title>
 </head>
 <body>
     <h1>Leder - Feedback Oversigt</h1>
+    <li><button id="logout-button">Logout</button></li>
     <form id="feedback-form">
         <input type="email" id="recipient-email" placeholder="Modtager Email" required>
         <textarea id="feedback-text" placeholder="Skriv feedback her" required></textarea>
@@ -17,16 +19,21 @@
     <ul id="feedback-list"></ul>
 
     <script>
+        // Hent token fra localStorage
         const token = localStorage.getItem('token');
         const feedbackList = document.getElementById('feedback-list');
 
+        // Hvis der ikke er nogen token, er brugeren ikke logget ind som leder
         if (!token) {
             alert("Du er ikke logget ind.");
-            window.location.href = '/login.html';
+            window.location.href = '/login';
         }
 
+        // Funktion til at hente al feedback (leder ser alle)
         async function fetchFeedback() {
-            const response = await fetch('/feedback', { headers: { Authorization: token } });
+            const response = await fetch('/feedback', { 
+                headers: { Authorization: token }
+            });
             const data = await response.json();
 
             feedbackList.innerHTML = '';
@@ -41,47 +48,68 @@
                 const li = document.createElement('li');
                 li.innerHTML = `
                     <strong>Til: ${item.recipient_email}</strong> - ${item.content}
-                    <button onclick="editFeedback(${item.id}, ${JSON.stringify(item.content)})">Rediger</button>
+                    <button onclick="editFeedback(${item.id}, '${item.content}')">Rediger</button>
                     <button onclick="deleteFeedback(${item.id})">Slet</button>
                 `;
                 feedbackList.appendChild(li);
             });
         }
 
-        // Send feedback
+        // Send feedback (POST /feedback)
         document.getElementById('feedback-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const recipient = document.getElementById('recipient-email').value;
-            const feedback = document.getElementById('feedback-text').value;
+            const recipient = document.getElementById('recipient-email').value.trim();
+            const feedback = document.getElementById('feedback-text').value.trim();
+
+            if (!recipient || !feedback) {
+                alert("Udfyld venligst begge felter.");
+                return;
+            }
 
             const response = await fetch('/feedback', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', Authorization: token },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    Authorization: token
+                },
                 body: JSON.stringify({ recipient_email: recipient, content: feedback }),
             });
 
             const data = await response.json();
-            alert(data.message || data.error);
-            fetchFeedback();
+            if (response.ok) {
+                alert(data.message);
+                document.getElementById('recipient-email').value = '';
+                document.getElementById('feedback-text').value = '';
+                fetchFeedback();
+            } else {
+                alert(`Fejl ved gemning af feedback: ${data.error || 'Ukendt fejl'}`);
+            }
         });
 
-        // Rediger feedback
-        async function editFeedback(id, oldFeedback) {
-            const newFeedback = prompt('Rediger din feedback:', oldFeedback);
+        // Rediger feedback (PUT /feedback/:id)
+        async function editFeedback(id, oldContent) {
+            const newFeedback = prompt('Rediger din feedback:', oldContent);
             if (!newFeedback) return;
 
             const response = await fetch(`/feedback/${id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json', Authorization: token },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    Authorization: token
+                },
                 body: JSON.stringify({ content: newFeedback }),
             });
 
             const data = await response.json();
-            alert(data.message || data.error);
-            fetchFeedback();
+            if (response.ok) {
+                alert(data.message);
+                fetchFeedback();
+            } else {
+                alert(`Fejl: ${data.error || 'Ukendt fejl ved redigering'}`);
+            }
         }
 
-        // Slet feedback
+        // Slet feedback (DELETE /feedback/:id)
         async function deleteFeedback(id) {
             if (!confirm('Er du sikker på, at du vil slette denne feedback?')) return;
 
@@ -91,12 +119,22 @@
             });
 
             const data = await response.json();
-            alert(data.message || data.error);
-            fetchFeedback();
+            if (response.ok) {
+                alert(data.message);
+                fetchFeedback();
+            } else {
+                alert(`Fejl: ${data.error || 'Ukendt fejl ved sletning'}`);
+            }
         }
 
-        // Hent feedback ved indlæsning
+        // Hent feedback ved indlæsning af siden
         fetchFeedback();
+         // Logout funktion
+         document.getElementById('logout-button').addEventListener('click', async () => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('role');
+            window.location.href = '/login.html';
+        });
     </script>
 </body>
 </html>
