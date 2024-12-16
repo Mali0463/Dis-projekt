@@ -7,9 +7,15 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const JWT_SECRET = process.env.JWT_SECRET;
+//const JWT_SECRET = process.env.JWT_SECRET;
 const DB_PATH = process.env.DB_PATH || '/var/www/app/database/users.db';
 const TOKEN_EXPIRATION = process.env.TOKEN_EXPIRATION || '1h';
+
+const JWT_SECRET = process.env.JWT_SECRET;
+
+console.log('JWT_SECRET er: ', JWT_SECRET); // Midlertidig test
+
+const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'Public')));
