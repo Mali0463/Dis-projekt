@@ -20,35 +20,7 @@
         </div>
     </div>
 
-    <script>
-        document.getElementById('login-button').addEventListener('click', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value.trim();
-            const password = document.getElementById('login-password').value.trim();
-
-            if (!email || !password) {
-                alert('Udfyld venligst begge felter.');
-                return;
-            }
-
-            try {
-                const response = await fetch('/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await response.json();
-                if (response.ok) {
-                    window.location.href = data.redirectUrl; // Omdirigerer baseret på rolle
-                } else {
-                    alert(`Fejl: ${data.error}`);
-                }
-            } catch (err) {
-                console.error('Fejl under login:', err);
-                alert('Der opstod en fejl. Prøv igen senere.');
-            }
-        });
+    <script src="/js/Login1.js">
     </script>
 </body>
 </html>

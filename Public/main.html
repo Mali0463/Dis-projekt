@@ -27,21 +27,23 @@
     </section>
 
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Validér brugerens JWT-token ved hentning af brugeroplysninger
-            try {
-                const response = await fetch('/current-user');
-                if (!response.ok) {
-                    throw new Error('Session udløbet. Log venligst ind igen.');
-                }
-                const user = await response.json();
-                console.log('Bruger valideret:', user);
-            } catch (err) {
-                console.error(err);
-                alert('Din session er udløbet. Du bliver omdirigeret til login-siden.');
-                window.location.href = '/login.html';
-            }
-        });
+        window.addEventListener('load', async () => {
+    const token = localStorage.getItem('token');
+
+    const response = await fetch('/feedback', {
+        headers: { Authorization: token },
+    });
+
+    const feedback = await response.json();
+    const feedbackList = document.getElementById('feedback-list');
+
+    feedback.forEach((fb) => {
+        const li = document.createElement('li');
+        li.textContent = `Fra: ${fb.sender_email} - ${fb.feedback}`;
+        feedbackList.appendChild(li);
+    });
+});
+
 
         // Logout-funktionalitet
         document.getElementById('logout-button').addEventListener('click', async () => {
