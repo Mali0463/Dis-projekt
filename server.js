@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
 const util = require('util');
-
+const app = express();
 const port = 5000;
 const secretKey = process.env.SECRET_KEY || 'default_secret';
 
@@ -63,28 +63,37 @@ app.get('/', (req, res) => {
 app.post('/register', async (req, res) => {
     let { email, password, role } = req.body;
 
-    // Normalisering og validering af e-mail
-    email = email.trim().toLowerCase();  // Fjern mellemrum og brug små bogstaver
-
-    if (!email || !password) {
-        return res.status(400).json({ error: 'Email og password er påkrævet' });
+    // Validering af input
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Ugyldig emailadresse' });
     }
 
+    if (!password || password.length < 6) {
+        return res.status(400).json({ error: 'Password skal være mindst 6 tegn' });
+    }
+
+    email = email.trim().toLowerCase();
+
     try {
-        console.log('Modtaget email:', email); // Debugging: Log e-mailen
+        // Tjek om brugeren allerede eksisterer
+        console.log('Modtaget email:', email);
         const existingUser = await db.get(`SELECT email FROM users WHERE email = ?`, [email]);
 
         if (existingUser) {
+            console.log('Brugeren eksisterer allerede:', existingUser);
             return res.status(400).json({ error: 'Email eksisterer allerede' });
         }
 
+        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Indsæt ny bruger
         await db.run(`INSERT INTO users (email, password, role) VALUES (?, ?, ?)`, [
-            email,
-            hashedPassword,
-            role || 'medarbejder',
+            email, hashedPassword, role || 'medarbejder',
         ]);
 
+        console.log('Bruger oprettet:', email);
         res.status(201).json({ message: 'Bruger oprettet succesfuldt!' });
     } catch (err) {
         console.error('Fejl under registrering:', err);
