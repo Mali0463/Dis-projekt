@@ -12,7 +12,7 @@ const DB_PATH = process.env.DB_PATH || 'users.db';
 const TOKEN_EXPIRATION = process.env.TOKEN_EXPIRATION || '1h';
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'Public')));
 
 // Database connection
 const db = new sqlite3.Database(DB_PATH, (err) => {
