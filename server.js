@@ -1,156 +1,132 @@
+require('dotenv').config();
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const bodyParser = require('body-parser');
-const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const path = require('path');
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
+const JWT_SECRET = process.env.JWT_SECRET;
+const DB_PATH = process.env.DB_PATH;
+const TOKEN_EXPIRATION = process.env.TOKEN_EXPIRATION || '1h';
 
-// Middleware
-app.use(cors());
-app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'Public')));
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-// JWT Secret Key
-const JWT_SECRET = 'secret123';
+// Database connection
+const db = new sqlite3.Database(DB_PATH, (err) => {
+    if (err) console.error(err.message);
+    else {
+        console.log('Connected to SQLite database.');
+        db.run(`
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT UNIQUE,
+                password TEXT,
+                role TEXT
+            );
+        `);
 
-// Database setup
-const db = new sqlite3.Database('./database/users.db', (err) => {
-    if (err) return console.error(err.message);
-    console.log('Connected to SQLite database.');
-});
-
-// Create tables if not exist
-db.run(`
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        email TEXT UNIQUE,
-        password TEXT,
-        role TEXT
-    );
-`);
-
-db.run(`
-    CREATE TABLE IF NOT EXISTS feedback (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        feedback TEXT,
-        recipient_email TEXT,
-        sender_email TEXT
-    );
-`);
-
-// Register route
-app.post('/register', async (req, res) => {
-    const { email, password, role } = req.body;
-    if (!email || !password) return res.status(400).json({ error: 'Email og password er påkrævet' });
-
-    try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        db.run(
-            `INSERT INTO users (email, password, role) VALUES (?, ?, ?)`,
-            [email, hashedPassword, role || 'Medarbejder'],
-            (err) => {
-                if (err) return res.status(400).json({ error: 'Email eksisterer allerede' });
-                res.status(201).json({ message: 'Bruger oprettet!' });
-            }
-        );
-    } catch (err) {
-        res.status(500).json({ error: 'Serverfejl ved registrering' });
+        db.run(`
+            CREATE TABLE IF NOT EXISTS feedback (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                content TEXT,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            );
+        `);
     }
 });
 
-// Login route
-app.post('/login', (req, res) => {
-    const { email, password } = req.body;
-
-    db.get(`SELECT * FROM users WHERE email = ?`, [email], async (err, user) => {
-        if (err || !user) return res.status(400).json({ error: 'Brugeren findes ikke' });
-
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) return res.status(400).json({ error: 'Forkert password' });
-
-        const token = jwt.sign({ email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
-        res.json({ token, role: user.role });
-    });
-});
-
-// Middleware for verifying JWT
-const verifyJWT = (req, res, next) => {
+// Middleware: Verify Token
+const authenticateToken = (req, res, next) => {
     const token = req.headers['authorization'];
-    if (!token) return res.status(401).json({ error: 'Ingen token' });
+    if (!token) return res.status(401).json({ error: 'No token provided.' });
 
-    jwt.verify(token, JWT_SECRET, (err, decoded) => {
-        if (err) return res.status(403).json({ error: 'Ugyldig token' });
-        req.user = decoded;
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) return res.status(403).json({ error: 'Invalid token.' });
+        req.user = user;
         next();
     });
 };
 
-// Feedback route (leder giver feedback)
-app.post('/feedback', verifyJWT, (req, res) => {
-    const { feedback, recipient_email } = req.body;
-    const sender_email = req.user.email;
+// REGISTER Endpoint
+app.post('/register', (req, res) => {
+    const { email, password, role } = req.body;
 
-    if (!feedback || !recipient_email) return res.status(400).json({ error: 'Feedback og modtager er påkrævet' });
+    if (!email || !password || !role) return res.status(400).json({ error: 'All fields are required.' });
 
-    db.run(
-        `INSERT INTO feedback (feedback, recipient_email, sender_email) VALUES (?, ?, ?)`,
-        [feedback, recipient_email, sender_email],
-        (err) => {
-            if (err) return res.status(500).json({ error: 'Serverfejl ved at indsætte feedback' });
-            res.json({ message: 'Feedback sendt!' });
-        }
-    );
-});
+    bcrypt.hash(password, 10, (err, hashedPassword) => {
+        if (err) return res.status(500).json({ error: 'Error hashing password.' });
 
-// Get feedback for medarbejder
-app.get('/feedback', verifyJWT, (req, res) => {
-    const userEmail = req.user.email;
-
-    db.all(`SELECT feedback, sender_email FROM feedback WHERE recipient_email = ?`, [userEmail], (err, rows) => {
-        if (err) return res.status(500).json({ error: 'Serverfejl ved at hente feedback' });
-        res.json(rows);
+        db.run('INSERT INTO users (email, password, role) VALUES (?, ?, ?)',
+            [email, hashedPassword, role],
+            function (err) {
+                if (err) return res.status(400).json({ error: 'Email already exists.' });
+                res.status(201).json({ message: 'User registered successfully!' });
+            });
     });
 });
 
-// Rediger feedback (leder kan opdatere feedback)
-app.put('/feedback/:id', verifyJWT, (req, res) => {
-    const { id } = req.params;
-    const { feedback } = req.body;
-    const sender_email = req.user.email;
+// LOGIN Endpoint
+app.post('/login', (req, res) => {
+    const { email, password } = req.body;
 
-    if (!feedback) return res.status(400).json({ error: 'Feedback-teksten er påkrævet' });
+    db.get('SELECT * FROM users WHERE email = ?', [email], (err, user) => {
+        if (err || !user) return res.status(400).json({ error: 'User not found.' });
 
-    db.run(
-        `UPDATE feedback SET feedback = ? WHERE id = ? AND sender_email = ?`,
-        [feedback, id, sender_email],
-        function (err) {
-            if (err) return res.status(500).json({ error: 'Fejl ved opdatering af feedback' });
-            if (this.changes === 0) return res.status(404).json({ error: 'Feedback ikke fundet eller mangler tilladelse' });
-            res.json({ message: 'Feedback opdateret!' });
-        }
-    );
+        bcrypt.compare(password, user.password, (err, isMatch) => {
+            if (err || !isMatch) return res.status(403).json({ error: 'Invalid credentials.' });
+
+            const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: TOKEN_EXPIRATION });
+            res.json({ message: 'Login successful!', token });
+        });
+    });
 });
 
-// Slet feedback (leder kan slette feedback)
-app.delete('/feedback/:id', verifyJWT, (req, res) => {
-    const { id } = req.params;
-    const sender_email = req.user.email;
+// POST FEEDBACK Endpoint
+app.post('/feedback', authenticateToken, (req, res) => {
+    const { content, user_id } = req.body;
 
-    db.run(
-        `DELETE FROM feedback WHERE id = ? AND sender_email = ?`,
-        [id, sender_email],
-        function (err) {
-            if (err) return res.status(500).json({ error: 'Fejl ved sletning af feedback' });
-            if (this.changes === 0) return res.status(404).json({ error: 'Feedback ikke fundet eller mangler tilladelse' });
-            res.json({ message: 'Feedback slettet!' });
-        }
-    );
+    if (!content || !user_id) return res.status(400).json({ error: 'Content and user_id are required.' });
+
+    db.run('INSERT INTO feedback (user_id, content) VALUES (?, ?)', [user_id, content], function (err) {
+        if (err) return res.status(500).json({ error: 'Error saving feedback.' });
+        res.json({ message: 'Feedback saved successfully!' });
+    });
 });
 
+// GET FEEDBACK Endpoint (Medarbejder view)
+app.get('/feedback', authenticateToken, (req, res) => {
+    db.all('SELECT * FROM feedback WHERE user_id = ?', [req.user.id], (err, rows) => {
+        if (err) return res.status(500).json({ error: 'Error fetching feedback.' });
+        res.json({ feedback: rows });
+    });
+});
+
+// UPDATE FEEDBACK Endpoint (Leder edit feedback)
+app.put('/feedback/:id', authenticateToken, (req, res) => {
+    const { content } = req.body;
+    const feedbackId = req.params.id;
+
+    db.run('UPDATE feedback SET content = ? WHERE id = ?', [content, feedbackId], function (err) {
+        if (err) return res.status(500).json({ error: 'Error updating feedback.' });
+        res.json({ message: 'Feedback updated successfully!' });
+    });
+});
+
+// DELETE FEEDBACK Endpoint
+app.delete('/feedback/:id', authenticateToken, (req, res) => {
+    const feedbackId = req.params.id;
+
+    db.run('DELETE FROM feedback WHERE id = ?', [feedbackId], function (err) {
+        if (err) return res.status(500).json({ error: 'Error deleting feedback.' });
+        res.json({ message: 'Feedback deleted successfully!' });
+    });
+});
 
 // Start server
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+});
