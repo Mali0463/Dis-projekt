@@ -8,7 +8,7 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET;
-const DB_PATH = process.env.DB_PATH || 'users.db';
+const DB_PATH = process.env.DB_PATH || '/var/www/app/database/users.db';
 const TOKEN_EXPIRATION = process.env.TOKEN_EXPIRATION || '1h';
 
 app.use(express.json());
