@@ -144,6 +144,32 @@ app.delete('/feedback/:id', authenticateToken, (req, res) => {
     });
 });
 
+// Route for registering.html
+app.get('/register', (req, res) => {
+    res.sendFile(path.join(__dirname, 'Public', 'registering.html'));
+});
+
+// Route for login.html
+app.get('/login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'Public', 'login.html'));
+});
+
+// Route for main.html
+app.get('/main', (req, res) => {
+    res.sendFile(path.join(__dirname, 'Public', 'main.html'));
+});
+
+// Route for feedback.html
+app.get('/feedback', (req, res) => {
+    res.sendFile(path.join(__dirname, 'Public', 'feedback.html'));
+});
+
+// Route for leder.html
+app.get('/leder', (req, res) => {
+    res.sendFile(path.join(__dirname, 'Public', 'leder.html'));
+});
+
+
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
