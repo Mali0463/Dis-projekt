@@ -18,36 +18,36 @@
 
     <script>
        document.getElementById('register-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
+           e.preventDefault();
 
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value.trim();
-    const role = document.getElementById('role').value;
+           const email = document.getElementById('email').value.trim();
+           const password = document.getElementById('password').value.trim();
+           const role = document.getElementById('role').value;
 
-    if (!email || !password || !role) {
-        alert('Udfyld venligst alle felter.');
-        return;
-    }
+           if (!email || !password || !role) {
+               alert('Udfyld venligst alle felter.');
+               return;
+           }
 
-    try {
-        const response = await fetch('/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password, role }),
-        });
+           try {
+               const response = await fetch('/register', {
+                   method: 'POST',
+                   headers: { 'Content-Type': 'application/json' },
+                   body: JSON.stringify({ email, password, role }),
+               });
 
-        const data = await response.json();
-        if (response.ok) {
-            alert('Bruger oprettet! Log ind nu.');
-            window.location.href = '/login.html';
-        } else {
-            alert(`Fejl: ${data.error || 'Serverfejl'}`);
-        }
-    } catch (err) {
-        console.error('Fejl ved registrering:', err);
-        alert('Der opstod en serverfejl. Prøv igen senere.');
-    }
-});
+               const data = await response.json();
+               if (response.ok) {
+                   alert('Bruger oprettet! Log ind nu.');
+                   window.location.href = '/login.html';
+               } else {
+                   alert(`Fejl: ${data.error || 'Serverfejl'}`);
+               }
+           } catch (err) {
+               console.error('Fejl ved registrering:', err);
+               alert('Der opstod en serverfejl. Prøv igen senere.');
+           }
+       });
     </script>
 </body>
 </html>

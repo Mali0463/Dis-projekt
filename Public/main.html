@@ -26,37 +26,44 @@
         </div>
     </section>
 
+    <h2>Din Feedback</h2>
+    <ul id="feedback-list"></ul>
+
     <script>
         window.addEventListener('load', async () => {
-    const token = localStorage.getItem('token');
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert("Du er ikke logget ind.");
+                window.location.href = '/login.html';
+                return;
+            }
 
-    const response = await fetch('/feedback', {
-        headers: { Authorization: token },
-    });
+            const response = await fetch('/feedback', {
+                headers: { Authorization: token },
+            });
 
-    const feedback = await response.json();
-    const feedbackList = document.getElementById('feedback-list');
+            const data = await response.json();
+            const feedbackList = document.getElementById('feedback-list');
+            feedbackList.innerHTML = '';
 
-    feedback.forEach((fb) => {
-        const li = document.createElement('li');
-        li.textContent = `Fra: ${fb.sender_email} - ${fb.feedback}`;
-        feedbackList.appendChild(li);
-    });
-});
-
+            if (!data.feedback || data.feedback.length === 0) {
+                const li = document.createElement('li');
+                li.textContent = "Ingen feedback fundet.";
+                feedbackList.appendChild(li);
+            } else {
+                data.feedback.forEach((fb) => {
+                    const li = document.createElement('li');
+                    li.textContent = `Feedback: ${fb.content}`;
+                    feedbackList.appendChild(li);
+                });
+            }
+        });
 
         // Logout-funktionalitet
         document.getElementById('logout-button').addEventListener('click', async () => {
-            try {
-                const response = await fetch('/logout', { method: 'POST' });
-                if (response.ok) {
-                    window.location.href = '/login.html';
-                } else {
-                    alert('Kunne ikke logge ud. Prøv igen.');
-                }
-            } catch (err) {
-                console.error('Logout fejl:', err);
-            }
+            localStorage.removeItem('token');
+            localStorage.removeItem('role');
+            window.location.href = '/login.html';
         });
     </script>
 

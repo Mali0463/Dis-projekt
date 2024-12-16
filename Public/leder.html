@@ -20,17 +20,28 @@
         const token = localStorage.getItem('token');
         const feedbackList = document.getElementById('feedback-list');
 
-        // Hent feedback fra server
+        if (!token) {
+            alert("Du er ikke logget ind.");
+            window.location.href = '/login.html';
+        }
+
         async function fetchFeedback() {
             const response = await fetch('/feedback', { headers: { Authorization: token } });
-            const feedback = await response.json();
+            const data = await response.json();
 
             feedbackList.innerHTML = '';
-            feedback.forEach(item => {
+            if (!data.feedback || data.feedback.length === 0) {
+                const li = document.createElement('li');
+                li.textContent = "Ingen feedback fundet.";
+                feedbackList.appendChild(li);
+                return;
+            }
+
+            data.feedback.forEach(item => {
                 const li = document.createElement('li');
                 li.innerHTML = `
-                    <strong>Til: ${item.recipient_email}</strong> - ${item.feedback}
-                    <button onclick="editFeedback(${item.id}, '${item.feedback}')">Rediger</button>
+                    <strong>Til: ${item.recipient_email}</strong> - ${item.content}
+                    <button onclick="editFeedback(${item.id}, ${JSON.stringify(item.content)})">Rediger</button>
                     <button onclick="deleteFeedback(${item.id})">Slet</button>
                 `;
                 feedbackList.appendChild(li);
@@ -46,7 +57,7 @@
             const response = await fetch('/feedback', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: token },
-                body: JSON.stringify({ recipient_email: recipient, feedback }),
+                body: JSON.stringify({ recipient_email: recipient, content: feedback }),
             });
 
             const data = await response.json();
@@ -62,7 +73,7 @@
             const response = await fetch(`/feedback/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', Authorization: token },
-                body: JSON.stringify({ feedback: newFeedback }),
+                body: JSON.stringify({ content: newFeedback }),
             });
 
             const data = await response.json();
