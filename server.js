@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const bcrypt = require('bcrypt');
@@ -7,20 +6,14 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-//const JWT_SECRET = process.env.JWT_SECRET;
-const DB_PATH = process.env.DB_PATH || '/var/www/app/database/users.db';
-const TOKEN_EXPIRATION = process.env.TOKEN_EXPIRATION || '1h';
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
-console.log('JWT_SECRET er: ', JWT_SECRET); // Midlertidig test
-
-const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, { expiresIn: '1h' });
+const JWT_SECRET = 'EnLangHemmeligNoegle123XYZ!'; // Hardkodet secret
+const DB_PATH = 'users.db';
+const TOKEN_EXPIRATION = '1h';
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'Public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Database connection
 const db = new sqlite3.Database(DB_PATH, (err) => {
     if (err) console.error(err.message);
     else {
@@ -45,7 +38,6 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
     }
 });
 
-// Middleware: Verify Token
 const authenticateToken = (req, res, next) => {
     const token = req.headers['authorization'];
     if (!token) return res.status(401).json({ error: 'No token provided.' });
@@ -57,7 +49,6 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// REGISTER Endpoint
 app.post('/register', (req, res) => {
     const { email, password, role } = req.body;
     if (!email || !password || !role) return res.status(400).json({ error: 'All fields are required.' });
@@ -77,7 +68,6 @@ app.post('/register', (req, res) => {
     });
 });
 
-// LOGIN Endpoint
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
 
@@ -97,13 +87,11 @@ app.post('/login', (req, res) => {
     });
 });
 
-// POST FEEDBACK Endpoint (For ledere, der giver feedback til en medarbejder)
 app.post('/feedback', authenticateToken, (req, res) => {
     const { recipient_email, content } = req.body;
-
     if (!content || !recipient_email) return res.status(400).json({ error: 'Content and recipient_email are required.' });
+    if (req.user.role !== 'leder') return res.status(403).json({ error: 'Only leaders can give feedback.' });
 
-    // Find user_id for given recipient_email
     db.get('SELECT id FROM users WHERE email = ?', [recipient_email], (err, userRow) => {
         if (err) return res.status(500).json({ error: 'Error fetching user_id.' });
         if (!userRow) return res.status(400).json({ error: 'No user found with that email.' });
@@ -116,21 +104,16 @@ app.post('/feedback', authenticateToken, (req, res) => {
     });
 });
 
-// GET FEEDBACK Endpoint
-// Hvis leder: Hent al feedback med recipient_email
-// Hvis medarbejder: Hent kun feedback til denne medarbejder
 app.get('/feedback', authenticateToken, (req, res) => {
     if (req.user.role === 'leder') {
-        db.all(
-            `SELECT feedback.id, feedback.content, users.email AS recipient_email 
-             FROM feedback 
-             JOIN users ON feedback.user_id = users.id`, 
-            [], 
-            (err, rows) => {
-                if (err) return res.status(500).json({ error: 'Error fetching feedback.' });
-                res.json({ feedback: rows });
-            }
-        );
+        db.all(`
+            SELECT feedback.id, feedback.content, users.email AS recipient_email
+            FROM feedback
+            JOIN users ON feedback.user_id = users.id
+        `, [], (err, rows) => {
+            if (err) return res.status(500).json({ error: 'Error fetching feedback.' });
+            res.json({ feedback: rows });
+        });
     } else {
         db.all('SELECT id, content FROM feedback WHERE user_id = ?', [req.user.id], (err, rows) => {
             if (err) return res.status(500).json({ error: 'Error fetching feedback.' });
@@ -139,14 +122,11 @@ app.get('/feedback', authenticateToken, (req, res) => {
     }
 });
 
-// UPDATE FEEDBACK Endpoint (Leder kan redigere)
 app.put('/feedback/:id', authenticateToken, (req, res) => {
     const { content } = req.body;
     const feedbackId = req.params.id;
 
-    if (req.user.role !== 'leder') {
-        return res.status(403).json({ error: 'Only leaders can edit feedback.' });
-    }
+    if (req.user.role !== 'leder') return res.status(403).json({ error: 'Only leaders can edit feedback.' });
 
     db.run('UPDATE feedback SET content = ? WHERE id = ?', [content, feedbackId], function (err) {
         if (err) return res.status(500).json({ error: 'Error updating feedback.' });
@@ -154,12 +134,9 @@ app.put('/feedback/:id', authenticateToken, (req, res) => {
     });
 });
 
-// DELETE FEEDBACK Endpoint (Leder kan slette)
 app.delete('/feedback/:id', authenticateToken, (req, res) => {
     const feedbackId = req.params.id;
-    if (req.user.role !== 'leder') {
-        return res.status(403).json({ error: 'Only leaders can delete feedback.' });
-    }
+    if (req.user.role !== 'leder') return res.status(403).json({ error: 'Only leaders can delete feedback.' });
 
     db.run('DELETE FROM feedback WHERE id = ?', [feedbackId], function (err) {
         if (err) return res.status(500).json({ error: 'Error deleting feedback.' });
@@ -167,7 +144,6 @@ app.delete('/feedback/:id', authenticateToken, (req, res) => {
     });
 });
 
-// Start server
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
