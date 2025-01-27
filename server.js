@@ -121,7 +121,7 @@ app.post('/login', (req, res) => {
             // Sæt cookie med token
             res.cookie('token', token, {
                 httpOnly: true,      // Kan IKKE tilgås fra JS i browseren => sikrere mod XSS
-                secure: false,       // Sæt til true, hvis du kører HTTPS i produktion
+                secure: true,       
                 sameSite: 'strict',  // Beskytter mod CSRF
                 maxAge: 3600000      // 1 time i millisekunder
             });
@@ -256,10 +256,6 @@ app.get('/login', (req, res) => {
 });
 app.get('/register', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'registering.html'));
-});
-// Route for feedback.html
-app.get('/feedback', (req, res) => {
-    res.sendFile(path.join(__dirname, 'Public', 'feedback.html'));
 });
 
 // Start server
