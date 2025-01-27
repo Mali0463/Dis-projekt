@@ -21,54 +21,61 @@
     <div id="feedback-container"></div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            await fetchFeedback();
-        });
-
-        async function fetchFeedback() {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                alert("Du er ikke logget ind.");
-                window.location.href = '/login.html';
-                return;
-            }
-
-            try {
-                const response = await fetch('/feedback', {
-                    headers: { Authorization: token }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    const feedbacks = data.feedback;
-                    const container = document.getElementById('feedback-container');
-                    container.innerHTML = '';
-
-                    if (!feedbacks || feedbacks.length === 0) {
-                        container.innerHTML = '<p>Ingen feedback fundet.</p>';
-                    } else {
-                        feedbacks.forEach(item => {
-                            const feedbackItem = document.createElement('div');
-                            feedbackItem.classList.add('feedback-item');
-                            feedbackItem.textContent = item.content;
-                            container.appendChild(feedbackItem);
-                        });
-                    }
-                } else {
-                    alert('Kunne ikke hente feedback. Log venligst ind igen.');
-                    window.location.href = '/login.html';
-                }
-            } catch (err) {
-                console.error('Fejl ved hentning af feedback:', err);
-                alert('Der opstod en fejl. Prøv igen senere.');
-            }
+       /**
+     * checkAuth() - tester om vi er logget ind ved at kalde /feedback
+     * Hvis serveren svarer 401/403, omdirigerer vi brugeren til index.html.
+     * Hvis alt er OK, returnerer vi data i JSON-format.
+     */
+    async function checkAuth() {
+        const response = await fetch('/feedback');
+        if (!response.ok) {
+            // Ved 401 / 403 -> ingen adgang
+            window.location.href = '/index.html';
+            return null;
         }
+        // Returnér JSON-data (listen af feedback)
+        return response.json();
+    }
 
-        // Logout funktion
-        document.getElementById('logout-button').addEventListener('click', async () => {
-            localStorage.removeItem('token');
-            localStorage.removeItem('role');
-            window.location.href = '/login.html';
-        });
+    /**
+     * loadFeedback() - kalder checkAuth() for at få feedback
+     * eller redirecte, hvis brugeren ikke har en gyldig JWT-cookie.
+     */
+    async function loadFeedback() {
+        const data = await checkAuth();
+        if (!data) return; // Hvis vi allerede er blevet omdirigeret, stop her.
+
+        // Her har vi data.feedback, som enten er den feedback brugeren selv har
+        // (hvis medarbejder) eller alt feedback (hvis leder) – afhængigt af server-logikken.
+        const container = document.getElementById('feedback-container');
+        container.innerHTML = '';
+
+        if (!data.feedback || data.feedback.length === 0) {
+            container.textContent = 'Ingen feedback fundet.';
+        } else {
+            data.feedback.forEach(item => {
+                const p = document.createElement('p');
+                // Hvis du er leder, får du recipient_email med i item.
+                // Hvis du er medarbejder, ser du kun dit eget feedback.
+                p.textContent = item.content; 
+                container.appendChild(p);
+            });
+        }
+    }
+
+    /**
+     * Logout - kalder /logout (der clear'er vores JWT-cookie).
+     */
+    async function handleLogout() {
+        await fetch('/logout', { method: 'POST' });
+        window.location.href = '/index.html';
+    }
+
+    // EventListener på logout-knappen
+    document.getElementById('logout-button').addEventListener('click', handleLogout);
+
+    // Kør loadFeedback, når siden indlæses.
+    loadFeedback();
     </script>
   
 </body>

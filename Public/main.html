@@ -28,41 +28,41 @@
     <ul id="feedback-list"></ul>
 
     <script>
-        window.addEventListener('load', async () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                alert("Du er ikke logget ind.");
-                window.location.href = '/login.html';
-                return;
-            }
+       async function checkAuth() {
+        // Kald en beskyttet endpoint for at se, om cookie er gyldig
+        const response = await fetch('/feedback');
+        if (!response.ok) {
+            // 401/403 => man har ikke en gyldig cookie
+            window.location.href = '/index.html';
+            return null;
+        }
+        return response.json();
+    }
 
-            const response = await fetch('/feedback', {
-                headers: { Authorization: token },
+    async function loadFeedback() {
+        const data = await checkAuth();
+        if (!data) return; // hvis man ikke er auth, checkAuth() har allerede redirectet
+        const fbDiv = document.getElementById('feedback');
+        fbDiv.innerHTML = '';
+
+        if (!data.feedback || data.feedback.length === 0) {
+            fbDiv.textContent = 'Ingen feedback fundet.';
+        } else {
+            data.feedback.forEach(item => {
+                const p = document.createElement('p');
+                p.textContent = item.content;
+                fbDiv.appendChild(p);
             });
+        }
+    }
 
-            const data = await response.json();
-            const feedbackList = document.getElementById('feedback-list');
-            feedbackList.innerHTML = '';
+    document.getElementById('logout-button').addEventListener('click', async () => {
+        // Kald /logout
+        await fetch('/logout', { method: 'POST' });
+        window.location.href = '/index.html';
+    });
 
-            if (!data.feedback || data.feedback.length === 0) {
-                const li = document.createElement('li');
-                li.textContent = "Ingen feedback fundet.";
-                feedbackList.appendChild(li);
-            } else {
-                data.feedback.forEach((fb) => {
-                    const li = document.createElement('li');
-                    li.textContent = `Feedback: ${fb.content}`;
-                    feedbackList.appendChild(li);
-                });
-            }
-        });
-
-        // Logout-funktionalitet
-        document.getElementById('logout-button').addEventListener('click', async () => {
-            localStorage.removeItem('token');
-            localStorage.removeItem('role');
-            window.location.href = '/login.html';
-        });
+    loadFeedback();
     </script>
 </body>
 </html>
