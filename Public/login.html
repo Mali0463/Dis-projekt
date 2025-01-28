@@ -24,38 +24,40 @@
 
     <script>
         document.getElementById('login-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value.trim();
-
-        try {
-            const response = await fetch('/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include', // Tilføj denne linje
-                body: JSON.stringify({ email, password })
-            });
-
-            const data = await response.json();
-            if (!response.ok) {
-                alert(`Fejl: ${data.error || 'Serverfejl'}`);
-                return;
+            e.preventDefault();
+    
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+    
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include', // Send HttpOnly-cookies
+                    body: JSON.stringify({ email, password })
+                });
+    
+                const data = await response.json();
+                if (!response.ok) {
+                    alert(`Fejl: ${data.error || 'Serverfejl'}`);
+                    console.error('Login fejl:', data);
+                    return;
+                }
+    
+                alert('Login succesfuld!');
+    
+                // Redirect baseret på rolle
+                if (data.role === 'leder') {
+                    window.location.href = '/leder.html';
+                } else {
+                    window.location.href = '/main.html';
+                }
+            } catch (err) {
+                console.error('Loginfejl:', err);
+                alert('Der opstod en fejl. Prøv igen senere.');
             }
-
-            alert('Login succesfuld!');
-
-            // "role" afgør, hvor vi skal gå hen
-            if (data.role === 'leder') {
-                window.location.href = '/leder.html';
-            } else {
-                window.location.href = '/main.html';
-            }
-        } catch (err) {
-            console.error('Loginfejl:', err);
-            alert('Der opstod en fejl. Prøv igen.');
-        }
-    });
-      </script>
+        });
+    </script>
+    
 </body>
 </html>

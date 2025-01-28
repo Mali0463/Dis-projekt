@@ -28,46 +28,62 @@
     <ul id="feedback-list"></ul>
 
     <script>
-       async function checkAuth() {
-        // Kald en beskyttet endpoint for at se, om cookie er gyldig
-        const response = await fetch('/feedback', {
-            credentials: 'include' // Tilføj denne linje
-        });
-        if (!response.ok) {
-            // 401/403 => man har ikke en gyldig cookie
-            window.location.href = '/index.html';
-            return null;
+        async function checkAuth() {
+            try {
+                const response = await fetch('/feedback', {
+                    credentials: 'include'
+                });
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        await fetch('/refresh', {
+                            method: 'POST',
+                            credentials: 'include'
+                        });
+                        return checkAuth(); // Prøv igen
+                    }
+                    window.location.href = '/index.html';
+                    return null;
+                }
+                return response.json();
+            } catch (err) {
+                console.error('Fejl under autentificering:', err);
+                window.location.href = '/index.html';
+            }
         }
-        return response.json();
-    }
-
-    async function loadFeedback() {
-        const data = await checkAuth();
-        if (!data) return; // hvis man ikke er auth, checkAuth() har allerede redirectet
-        const fbDiv = document.getElementById('feedback-container');
-        fbDiv.innerHTML = '';
-
-        if (!data.feedback || data.feedback.length === 0) {
-            fbDiv.textContent = 'Ingen feedback fundet.';
-        } else {
-            data.feedback.forEach(item => {
-                const p = document.createElement('p');
-                p.textContent = item.content;
-                fbDiv.appendChild(p);
-            });
+    
+        async function loadFeedback() {
+            const data = await checkAuth();
+            if (!data) return;
+    
+            const fbDiv = document.getElementById('feedback-list');
+            fbDiv.innerHTML = '';
+    
+            if (!data.feedback || data.feedback.length === 0) {
+                fbDiv.textContent = 'Ingen feedback fundet.';
+            } else {
+                data.feedback.forEach(item => {
+                    const p = document.createElement('p');
+                    p.textContent = item.content;
+                    fbDiv.appendChild(p);
+                });
+            }
         }
-    }
-
-    document.getElementById('logout-button').addEventListener('click', async () => {
-        // Kald /logout
-        await fetch('/logout', { 
-            method: 'POST',
-            credentials: 'include' // Tilføj denne linje
+    
+        document.getElementById('logout-button').addEventListener('click', async () => {
+            try {
+                await fetch('/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                window.location.href = '/index.html';
+            } catch (err) {
+                console.error('Fejl ved logout:', err);
+            }
         });
-        window.location.href = '/index.html';
-    });
-
-    loadFeedback();
+    
+        document.addEventListener('DOMContentLoaded', loadFeedback);
     </script>
+    
+    
 </body>
 </html>
