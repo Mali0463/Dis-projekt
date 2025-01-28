@@ -17,8 +17,6 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
-
-// Servér statiske filer fra "public" mappen
 app.use(express.static(path.join(__dirname, 'public')));
 
 // SQLite-forbindelse
@@ -27,7 +25,7 @@ const db = new sqlite3.Database('users.db', (err) => {
         console.error('Fejl ved forbindelse til SQLite:', err.message);
     } else {
         console.log('Tilsluttet SQLite-database');
-        // Opret nødvendige tabeller, hvis de ikke findes
+        // Opret tabeller, hvis de ikke allerede findes
         db.run(`
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -36,36 +34,45 @@ const db = new sqlite3.Database('users.db', (err) => {
                 role TEXT
             );
         `);
+
+        db.run(`
+            CREATE TABLE IF NOT EXISTS feedback (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER,
+                content TEXT,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            );
+        `);
     }
 });
 
-// Middleware til autentificering af tokens fra HttpOnly-cookie
+// Middleware til autentificering
 function authenticateToken(req, res, next) {
-    const token = req.cookies.token; // Læs token fra cookie
+    const token = req.cookies.token;
     if (!token) {
-        return res.status(401).json({ error: 'Ingen adgang. Log ind først.' });
+        return res.status(401).json({ error: 'Ingen token. Log ind først.' });
     }
 
     jwt.verify(token, JWT_SECRET, (err, user) => {
         if (err) {
-            return res.status(403).json({ error: 'Token er ugyldig eller udløbet.' });
+            return res.status(403).json({ error: 'Ugyldig eller udløbet token.' });
         }
-        req.user = user; // Gem brugerinfo til senere brug
+        req.user = user; // Gem brugerinfo
         next();
     });
 }
 
-// Middleware til autorisation baseret på rolle
+// Middleware til rollebaseret adgang
 function authorizeRole(role) {
     return (req, res, next) => {
         if (req.user.role !== role) {
-            return res.status(403).json({ error: 'Ingen adgang til denne handling.' });
+            return res.status(403).json({ error: 'Adgang nægtet.' });
         }
         next();
     };
 }
 
-// **Login-route: Opret JWT og refresh token**
+// Login Route
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
 
@@ -76,7 +83,7 @@ app.post('/login', (req, res) => {
 
         bcrypt.compare(password, user.password, (err, match) => {
             if (!match) {
-                return res.status(403).json({ error: 'Ugyldige loginoplysninger.' });
+                return res.status(403).json({ error: 'Forkert adgangskode.' });
             }
 
             const accessToken = jwt.sign(
@@ -91,17 +98,19 @@ app.post('/login', (req, res) => {
                 { expiresIn: REFRESH_EXPIRATION }
             );
 
-            // Sæt HttpOnly-cookies
+            // Kun HTTPS i produktion
+            const isProduction = process.env.NODE_ENV === 'production';
+
             res.cookie('token', accessToken, {
                 httpOnly: true,
-                secure: true, // Kun HTTPS
+                secure: isProduction, // Kun sikre cookies i produktion
                 sameSite: 'strict',
                 maxAge: 3600000 // 1 time
             });
 
             res.cookie('refreshToken', refreshToken, {
                 httpOnly: true,
-                secure: true,
+                secure: isProduction,
                 sameSite: 'strict',
                 maxAge: 7 * 24 * 60 * 60 * 1000 // 7 dage
             });
@@ -111,11 +120,11 @@ app.post('/login', (req, res) => {
     });
 });
 
-// **Refresh token-route: Forny adgangstoken**
+// Refresh Token Route
 app.post('/refresh', (req, res) => {
-    const refreshToken = req.cookies.refreshToken; // Læs refresh token fra cookie
+    const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
-        return res.status(401).json({ error: 'Ingen refresh token. Log ind igen.' });
+        return res.status(401).json({ error: 'Ingen refresh token.' });
     }
 
     jwt.verify(refreshToken, JWT_SECRET, (err, user) => {
@@ -131,23 +140,23 @@ app.post('/refresh', (req, res) => {
 
         res.cookie('token', newAccessToken, {
             httpOnly: true,
-            secure: true,
+            secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
             maxAge: 3600000 // 1 time
         });
 
-        res.json({ message: 'Access token fornyet!' });
+        res.json({ message: 'Token fornyet!' });
     });
 });
 
-// **Logout-route: Slet HttpOnly-cookies**
+// Logout Route
 app.post('/logout', (req, res) => {
     res.clearCookie('token');
     res.clearCookie('refreshToken');
     res.json({ message: 'Logget ud succesfuldt!' });
 });
 
-// **Beskyttede ruter (kræver token)**
+// Protected Routes
 app.get('/employees', authenticateToken, authorizeRole('leder'), (req, res) => {
     db.all('SELECT email FROM users WHERE role = "medarbejder"', [], (err, rows) => {
         if (err) {
@@ -179,7 +188,12 @@ app.get('/feedback', authenticateToken, (req, res) => {
     }
 });
 
-// Start server
+// Debugging Route
+app.get('/decode-token', authenticateToken, (req, res) => {
+    res.json(req.user);
+});
+
+// Start Server
 app.listen(PORT, () => {
     console.log(`Serveren kører på port ${PORT}`);
 });
