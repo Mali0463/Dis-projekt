@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', async () => {
+/*document.addEventListener('DOMContentLoaded', async () => {
     // Antag, at brugeren er logget ind, og deres e-mail gemmes i en cookie eller JWT.
     const email = getLoggedInUserEmail(); // Implementér denne funktion til at få brugerens e-mail fra JWT eller cookie.
 
@@ -32,3 +32,4 @@ function getLoggedInUserEmail() {
     }
     return null;
 }
+*/
