@@ -11,7 +11,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 
 const PORT = process.env.PORT || 6005;
-const JWT_SECRET = process.env.JWT_SECRET || 'FallbackSecret';
+const JWT_SECRET = process.env.JWT_SECRET || 'EnLangHemmeligNoegle123XYZ!';
 const DB_PATH = process.env.DATABASE_PATH || 'users.db';
 const TOKEN_EXPIRATION = '1h';
 
@@ -121,7 +121,7 @@ app.post('/login', (req, res) => {
             // Sæt cookie med token
             res.cookie('token', token, {
                 httpOnly: true,      // Kan IKKE tilgås fra JS i browseren => sikrere mod XSS
-                secure: true,       
+                secure: true,        // Kræver HTTPS
                 sameSite: 'strict',  // Beskytter mod CSRF
                 maxAge: 3600000      // 1 time i millisekunder
             });
@@ -135,7 +135,8 @@ app.post('/login', (req, res) => {
     });
 });
 
-// Logout (valgfrit) => slet cookie
+
+// Logout => slet cookie
 app.post('/logout', (req, res) => {
     res.clearCookie('token');
     res.json({ message: 'Logged out successfully!' });
