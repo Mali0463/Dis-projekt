@@ -6,7 +6,7 @@ body {
     box-sizing: border-box;
   }
   
-  /* Header styling */
+  /* Header og navigation */
   header {
     background: #fff;
     padding: 10px 20px;
@@ -16,7 +16,6 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
-  /* Navigation */
   nav .nav-links {
     list-style-type: none;
     display: flex;
@@ -33,9 +32,9 @@ body {
     font-weight: bold;
   }
   
-  /* Hero sektion */
+  /* Hero-sektion */
   .hero {
-    background-image: url('https://www.worldcoffeeportal.com/getattachment/4bf6caa6-63c2-4ce8-9b73-e5cb2d3a8e16/Store-image-1-(1).jpg.aspx?lang=en-GB&width=700&height=466');
+    background-image: url('https://www.worldcoffeeportal.com/getattachment/4bf6caa6-63c2-4ce8-9b73-e5cb2d3a8e16/Store-image-1-(1).jpg.aspx?lang=en-GB&width=700&height=466'); /* Relevant baggrundsbillede */
     background-size: cover;
     background-position: center;
     height: 60vh;
@@ -56,7 +55,7 @@ body {
     margin-bottom: 20px;
   }
   
-  /* Knap styling – samme styling som Order Now */
+  /* Knap styling – bruges fx til "Order Now" eller "Login/Signup" */
   .btn {
     background-color: #f7b2d9;
     color: white;
@@ -65,19 +64,74 @@ body {
     border-radius: 5px;
     font-weight: bold;
     transition: background-color 0.3s ease;
-    border: none;
-    cursor: pointer;
+    border: none;       /* Tilføjet for at fjerne standard-knapramme */
+    cursor: pointer;    /* Sikrer, at musepekeren bliver til en pointer */
   }
   
   .btn:hover {
     background-color: #e091b6;
   }
   
-  /* Container til knappen i hero-sektionen */
-  .hero-buttons {
+  /* Eksempelvis knap til fuldt menu – hvis du bruger den et sted */
+  #fullMenuBtn {
+    background-color: #f7b2d9;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  }
+  
+  /* Produkter og galleri (bruges hvis du har en produktside) */
+  .products {
+    padding: 40px 20px;
+    text-align: center;
+    background-color: #f4f4f4;
+  }
+  
+  .products h2 {
+    margin-bottom: 30px;
+  }
+  
+  .product-gallery {
     display: flex;
-    justify-content: center;
-    margin-top: 20px;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .product-card {
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 23%;
+  }
+  
+  .product-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+  
+  .product-card h3 {
+    margin: 10px 0;
+  }
+  
+  .product-card button {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .product-card button:hover {
+    background-color: #555;
   }
   
   /* Sticky Header */
@@ -116,7 +170,7 @@ body {
     }
   }
   
-  /* Yderligere styling, hvis nødvendigt */
+  /* Ekstra stylinger */
   .bx-x {
     transform: rotate(90deg);
   }
@@ -125,6 +179,7 @@ body {
     transform: scale(1.02);
   }
   
+  /* Kontaktsektion */
   .contact {
     padding: 50px 15% 40px;
   }
@@ -136,6 +191,7 @@ body {
     gap: 2rem;
   }
   
+  /* Bemærk: CSS-variablerne nedenfor skal defineres et sted, fx i :root */
   .contact-content h4 {
     font-size: 20px;
     color: var(--text-color);
