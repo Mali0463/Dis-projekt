@@ -1,133 +1,68 @@
-// Add event listener to each nav link for smooth scrolling
-const navLinks = document.querySelectorAll('.nav-links a');
-
-// Function to handle link click with smooth scroll to target section
-navLinks.forEach(link => {
-    link.addEventListener('click', (event) => {
-        event.preventDefault();  // Prevent default link behavior
-
-        // Get the target section
+document.addEventListener('DOMContentLoaded', () => {
+    /* ---------------------- Cookie Consent ---------------------- */
+    if (!localStorage.getItem('cookiesAccepted')) {
+      const consent = confirm(
+        'Denne hjemmeside bruger cookies for at sikre, at du får den bedste oplevelse. Vil du acceptere brugen af cookies?'
+      );
+      if (consent) {
+        localStorage.setItem('cookiesAccepted', 'true');
+      } else {
+        alert('Du skal acceptere cookies for at bruge denne hjemmeside.');
+        window.location.href = 'https://www.google.com';
+        return; // Stop yderligere kørsel, hvis der ikke gives samtykke
+      }
+    }
+  
+    /* ---------------------- Smooth Scrolling for Nav Links ---------------------- */
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', event => {
+        event.preventDefault();
         const targetSection = document.querySelector(link.getAttribute('href'));
         if (targetSection) {
-            // Smoothly scroll to the section
-            targetSection.scrollIntoView({ behavior: 'smooth' });
+          targetSection.scrollIntoView({ behavior: 'smooth' });
         }
+      });
     });
-});
-
-// Sticky Header on Scroll
-const header = document.querySelector("header");
-
-window.addEventListener("scroll", function() {
-    header.classList.toggle("sticky", window.scrollY > 0);
-});
-
-// Mobile Menu Toggle
-let menu = document.querySelector('#menu-icon');
-let navbar = document.querySelector('.navbar');
-
-menu.onclick = () => {
-    menu.classList.toggle('bx-x');
-    navbar.classList.toggle('open');
-}
-
-window.onscroll = () => {
-    menu.classList.remove('bx-x');
-    navbar.classList.remove('open');
-}
-
-// ScrollReveal Animations
-const sr = ScrollReveal({
-    distance: '30px',
-    duration: 2500,
-    reset: true
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Find login-knappen
+  
+    /* ---------------------- Sticky Header ---------------------- */
+    const header = document.querySelector('header');
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('sticky', window.scrollY > 0);
+      // Luk mobilmenuen når der scrolles
+      document.querySelector('#menu-icon').classList.remove('bx-x');
+      document.querySelector('.navbar').classList.remove('open');
+    });
+  
+    /* ---------------------- Mobile Menu Toggle ---------------------- */
+    const menu = document.querySelector('#menu-icon');
+    const navbar = document.querySelector('.navbar');
+    menu.onclick = () => {
+      menu.classList.toggle('bx-x');
+      navbar.classList.toggle('open');
+    };
+  
+    /* ---------------------- ScrollReveal Animationer ---------------------- */
+    const sr = ScrollReveal({
+      distance: '30px',
+      duration: 2500,
+      reset: true
+    });
+  
+    sr.reveal('.home-text', { delay: 200, origin: 'left' });
+    sr.reveal('.home-img', { delay: 200, origin: 'right' });
+    sr.reveal('.container, .about, .menu, .contact', { delay: 200, origin: 'bottom' });
+  
+    /* ---------------------- Login/Signup Knap ---------------------- */
     const loginButton = document.getElementById('login-user');
-    
-    // Tjek om knappen er fundet
     if (loginButton) {
-        loginButton.addEventListener('click', (e) => {
-            // Omdiriger til login.html, når knappen trykkes
-            window.location.href = '/login.html';
-        });
+      loginButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log('Login/Signup knappen blev trykket');
+        // Omdiriger til login-siden
+        window.location.href = '/login.html';
+      });
     } else {
-        console.error('Login-knappen kunne ikke findes i DOM\'en. Sørg for, at knappen med ID "login-user" findes.');
+      console.error('Login/Signup knappen kunne ikke findes i DOM.');
     }
-});
-
-
-sr.reveal('.home-text', { delay: 200, origin: 'left' });
-sr.reveal('.home-img', { delay: 200, origin: 'right' });
-sr.reveal('.container, .about, .menu, .contact', { delay: 200, origin: 'bottom' });
-document.addEventListener('DOMContentLoaded', () => {
-    // Check if cookies are already accepted
-    if (!localStorage.getItem('cookiesAccepted')) {
-        // Display alert for cookie consent
-        let consent = confirm('Denne hjemmeside bruger cookies for at sikre, at du får den bedste oplevelse. Vil du acceptere brugen af cookies?');
-        if (consent) {
-            localStorage.setItem('cookiesAccepted', 'true');
-        } else {
-            alert('Du skal acceptere cookies for at bruge denne hjemmeside.');
-            window.location.href = 'https://www.google.com'; // Redirect user if they do not accept cookies
-        }
-    }
-});
-
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Find login-knappen
-    const loginButton = document.getElementById('login-user');
-    
-    // Tjek om knappen er fundet
-    if (loginButton) {
-        loginButton.addEventListener('click', async (e) => {
-            e.preventDefault();
-
-            console.log("Login-knappen blev trykket"); // Debug punkt: Log for at se, om knappen trykkes
-
-            // Indsaml input data fra HTML-formularen
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-
-            console.log("Indsamlede data:", { email, password }); // Debug punkt: Log indsamlet data
-
-            // Tjek om felterne er tomme
-            if (!email || !password) {
-                alert('Venligst udfyld begge felter');
-                return;
-            }
-
-            try {
-                // Send data til serveren via POST-forespørgsel
-                const response = await fetch('https://localhost/5000/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ email, password }),
-                });
-
-                console.log("Response status:", response.status); // Debug punkt: Log response status
-
-                // Håndterer serverens svar
-                if (response.ok) {
-                    const data = await response.json();
-                    alert('Login succesfuldt!');
-                    window.location.href = data.redirectUrl; // Omdiriger til den rigtige side baseret på rollen
-                } else {
-                    const errorData = await response.json();
-                    console.error("Fejl fra server:", errorData);
-                    alert(`Fejl: ${errorData.error}`);
-                }
-            } catch (error) {
-                console.error('Fejl under login:', error);
-                alert('Der opstod en fejl. Prøv igen.');
-            }
-        });
-    } else {
-        console.error('Login-knappen kunne ikke findes i DOM\'en. Sørg for, at knappen med ID "login-user" findes.');
-    }
-});
+  });
+  

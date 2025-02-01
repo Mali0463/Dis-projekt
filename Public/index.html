@@ -1,45 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Joe & The Juice</title>
-    <link rel="stylesheet" href="/css/index.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Joe & The Juice</title>
+  <link rel="stylesheet" href="/css/index.css" />
 </head>
 <body>
-    <header>
-        <nav>
-            <div id="menu-icon">☰</div> <!-- Added for the menu toggle -->
-            <ul class="nav-links navbar">
-            <button id="login-user">Login/Signup</button>
-            </ul>
-        </nav>
-    </header>
+  <header>
+    <nav>
+      <div id="menu-icon">☰</div>
+      <ul class="nav-links navbar">
+        <!-- Andre links kan tilføjes her, hvis nødvendigt -->
+      </ul>
+    </nav>
+  </header>
 
-    <section class="hero home-text"> <!-- Added class for ScrollReveal -->
-        <div class="hero-text">
-            <h1>Start Your Order</h1>
-            <p>Fresh juices, healthy shakes and delicious sandwiches. What are you in for today?</p>
-            <a href="#" class="btn">Order Now</a>
-        </div>
-    </section>
+  <!-- Hero-sektion med både "Order Now" og "Login/Signup" knapper -->
+  <section class="hero home-text">
+    <div class="hero-text">
+      <h1>Start Your Order</h1>
+      <p>
+        Fresh juices, healthy shakes and delicious sandwiches. What are you in for today?
+      </p>
+      <div class="hero-buttons">
+        <a href="#" class="btn order-btn">Order Now</a>
+        <button id="login-user" class="btn login-btn">Login/Signup</button>
+      </div>
+    </div>
+  </section>
 
-    <script src="https://unpkg.com/scrollreveal"></script> <!-- Added ScrollReveal library -->
-
-    <script>document.addEventListener('DOMContentLoaded', () => {
-        // Check om brugeren tidligere har accepteret cookies
-        if (!localStorage.getItem('cookiesAccepted')) {
-            let acceptCookies = window.confirm("Vi bruger cookies til at forbedre din oplevelse. Accepterer du brugen af cookies?");
-            if (acceptCookies) {
-                localStorage.setItem('cookiesAccepted', 'true');
-            } else {
-                // Hvis brugeren ikke accepterer cookies, omdirigeres de til en anden side eller forhindres adgang
-                alert("Du skal acceptere cookies for at bruge hjemmesiden.");
-                window.location.href = "/"; // Eller hold brugeren på samme side
-            }
-        }
-    });
-    </script>
-    <script src="/js/index.js"></script>
+  <!-- ScrollReveal biblioteket -->
+  <script src="https://unpkg.com/scrollreveal"></script>
+  <script src="/js/index.js"></script>
 </body>
 </html>

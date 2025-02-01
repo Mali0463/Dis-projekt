@@ -1,38 +1,41 @@
-/* Global Styles */
+/* Generelle stylinger */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-}
-
-header {
+  }
+  
+  /* Header styling */
+  header {
     background: #fff;
     padding: 10px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-nav .nav-links {
+  }
+  
+  /* Navigation */
+  nav .nav-links {
     list-style-type: none;
     display: flex;
     margin: 0;
-}
-
-nav .nav-links li {
+  }
+  
+  nav .nav-links li {
     margin-left: 20px;
-}
-
-nav .nav-links a {
+  }
+  
+  nav .nav-links a {
     text-decoration: none;
     color: #333;
     font-weight: bold;
-}
-
-.hero {
-    background-image: url('https://www.worldcoffeeportal.com/getattachment/4bf6caa6-63c2-4ce8-9b73-e5cb2d3a8e16/Store-image-1-(1).jpg.aspx?lang=en-GB&width=700&height=466'); /* Add a relevant image */
+  }
+  
+  /* Hero sektion */
+  .hero {
+    background-image: url('https://www.worldcoffeeportal.com/getattachment/4bf6caa6-63c2-4ce8-9b73-e5cb2d3a8e16/Store-image-1-(1).jpg.aspx?lang=en-GB&width=700&height=466');
     background-size: cover;
     background-position: center;
     height: 60vh;
@@ -41,19 +44,20 @@ nav .nav-links a {
     align-items: center;
     color: white;
     text-align: center;
-}
-
-.hero-text h1 {
+  }
+  
+  .hero-text h1 {
     font-size: 3rem;
     margin-bottom: 10px;
-}
-
-.hero-text p {
+  }
+  
+  .hero-text p {
     font-size: 1.2rem;
     margin-bottom: 20px;
-}
-
-.btn {
+  }
+  
+  /* Knap styling */
+  .btn {
     background-color: #f7b2d9;
     color: white;
     padding: 10px 20px;
@@ -61,141 +65,98 @@ nav .nav-links a {
     border-radius: 5px;
     font-weight: bold;
     transition: background-color 0.3s ease;
-}
-
-#fullMenuBtn {
-    background-color: #f7b2d9;
-    color: white;
-    padding: 10px 20px;
-    text-decoration: none;
-    border-radius: 5px;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-}
-
-.btn:hover {
-    background-color: #e091b6;
-}
-
-.products {
-    padding: 40px 20px;
-    text-align: center;
-    background-color: #f4f4f4;
-}
-
-.products h2 {
-    margin-bottom: 30px;
-}
-
-.product-gallery {
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-.product-card {
-    background-color: #fff;
-    border-radius: 10px;
-    overflow: hidden;
-    text-align: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    width: 23%;
-}
-
-.product-card img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-}
-
-.product-card h3 {
-    margin: 10px 0;
-}
-
-.product-card button {
-    background-color: #333;
-    color: white;
     border: none;
-    padding: 10px;
-    width: 100%;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.product-card button:hover {
-    background-color: #555;
-}
-
-/* Sticky Header */
-header.sticky {
+  }
+  
+  .btn:hover {
+    background-color: #e091b6;
+  }
+  
+  /* Container til knapperne i hero-sektionen */
+  .hero-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  /* Sticky Header */
+  header.sticky {
     position: fixed;
     top: 0;
     width: 100%;
     z-index: 1000;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Navbar Menu Icon (for mobile) */
-#menu-icon {
+  }
+  
+  /* Navbar Menu Icon (for mobile) */
+  #menu-icon {
     font-size: 2rem;
     cursor: pointer;
     display: none;
-}
-
-@media (max-width: 768px) {
+  }
+  
+  @media (max-width: 768px) {
     #menu-icon {
-        display: block;
+      display: block;
     }
-
+  
     .navbar {
-        display: none;
-        flex-direction: column;
-        background-color: white;
-        position: absolute;
-        top: 60px;
-        right: 0;
-        width: 100%;
+      display: none;
+      flex-direction: column;
+      background-color: white;
+      position: absolute;
+      top: 60px;
+      right: 0;
+      width: 100%;
     }
-
+  
     .navbar.open {
-        display: flex;
+      display: flex;
     }
-}
-
-.bx-x {
+  }
+  
+  /* Yderligere styling, hvis nødvendigt */
+  .bx-x {
     transform: rotate(90deg);
-}
-
-.row:hover{
-	transform: scale(1.02);
-}
-.contact{
-	padding: 50px 15% 40px;
-}
-.main-contact{
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(150px, auto));
-	justify-content: center;
-	gap: 2rem;
-}
-.contact-content h4{
-	font-size: 20px;
-	color: var(--text-color);
-	margin-bottom: 1.5rem;
-}
-.contact-content li{
-	margin-bottom: 16px;
-}
-.contact-content li a{
-	display: block;
-	color: var(--text-color);
-	font-size: 15px;
-	font-weight: 500;
-	transition: all .40s ease;
-}
-.contact-content li a:hover{
-	transform: translateX(10px);
-	color: var(--main-color);
-}
-
+  }
+  
+  .row:hover {
+    transform: scale(1.02);
+  }
+  
+  .contact {
+    padding: 50px 15% 40px;
+  }
+  
+  .main-contact {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, auto));
+    justify-content: center;
+    gap: 2rem;
+  }
+  
+  .contact-content h4 {
+    font-size: 20px;
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+  }
+  
+  .contact-content li {
+    margin-bottom: 16px;
+  }
+  
+  .contact-content li a {
+    display: block;
+    color: var(--text-color);
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.4s ease;
+  }
+  
+  .contact-content li a:hover {
+    transform: translateX(10px);
+    color: var(--main-color);
+  }
+  
