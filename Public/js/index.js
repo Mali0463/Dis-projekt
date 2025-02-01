@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         alert('Du skal acceptere cookies for at bruge denne hjemmeside.');
         window.location.href = 'https://www.google.com';
-        return; // Stop yderligere kørsel, hvis der ikke gives samtykke
+        return; // Stop yderligere kørsel, hvis samtykke ikke gives
       }
     }
   
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const header = document.querySelector('header');
     window.addEventListener('scroll', () => {
       header.classList.toggle('sticky', window.scrollY > 0);
-      // Luk mobilmenuen når der scrolles
+      // Luk mobilmenuen, hvis den er åben
       document.querySelector('#menu-icon').classList.remove('bx-x');
       document.querySelector('.navbar').classList.remove('open');
     });

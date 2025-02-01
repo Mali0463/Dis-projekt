@@ -56,7 +56,7 @@ body {
     margin-bottom: 20px;
   }
   
-  /* Knap styling */
+  /* Knap styling – samme styling som Order Now */
   .btn {
     background-color: #f7b2d9;
     color: white;
@@ -73,10 +73,9 @@ body {
     background-color: #e091b6;
   }
   
-  /* Container til knapperne i hero-sektionen */
+  /* Container til knappen i hero-sektionen */
   .hero-buttons {
     display: flex;
-    gap: 20px;
     justify-content: center;
     margin-top: 20px;
   }
