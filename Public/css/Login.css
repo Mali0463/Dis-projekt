@@ -36,8 +36,8 @@ body {
     margin-bottom: 20px;
 }
 
-/* Input field styles */
-input[type="email"],
+/* Ensuring inputs are equal width */
+input[type="email"], 
 input[type="password"] {
     width: 100%;
     padding: 12px;
@@ -45,14 +45,16 @@ input[type="password"] {
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 16px;
-    box-sizing: border-box; /* Sikrer, at padding ikke ændrer størrelsen */
+    box-sizing: border-box; /* Ensures padding does not change width */
     display: block;
+    height: 45px; /* Ensures both fields have the same height */
 }
 
-/* Ensure both inputs have the same height */
-input[type="email"],
-input[type="password"] {
-    height: 45px;
+/* Ensuring placeholder text aligns correctly */
+input[type="email"]::placeholder,
+input[type="password"]::placeholder {
+    font-size: 14px;
+    color: #999;
 }
 
 /* Button styling */
