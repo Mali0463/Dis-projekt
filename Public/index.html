@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Joe & The Juice</title>
   <link rel="stylesheet" href="/css/index.css" />
+  <!-- ScrollReveal bibliotek -->
+  <script src="https://unpkg.com/scrollreveal"></script>
 </head>
 <body>
   <header>
@@ -21,17 +23,78 @@
     <div class="hero-text">
       <h1>Start Your Order</h1>
       <p>
-        Velkommen til Joe N the Juice interne portal
-      </p>
+        Velkommen til intranet for medarbejdere og ledere
+    </p>
       <div class="hero-buttons">
-        <!-- Her bruges samme styling (class "btn") som Order Now, men knappen har login-funktionaliteten -->
+        <!-- Knappen ligner Order Now, men har login-funktionalitet -->
         <button id="login-user" class="btn">Login/Signup</button>
       </div>
     </div>
   </section>
 
-  <!-- ScrollReveal biblioteket -->
-  <script src="https://unpkg.com/scrollreveal"></script>
-  <script src="/js/index.js"></script>
+  <!-- Inline JavaScript -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM loaded and parsed');
+
+      /* ---------------------- Cookie Consent ---------------------- */
+      if (!localStorage.getItem('cookiesAccepted')) {
+        const consent = confirm('Denne hjemmeside bruger cookies for at sikre, at du får den bedste oplevelse. Vil du acceptere brugen af cookies?');
+        if (consent) {
+          localStorage.setItem('cookiesAccepted', 'true');
+        } else {
+          alert('Du skal acceptere cookies for at bruge denne hjemmeside.');
+          window.location.href = 'https://www.google.com';
+          return; // Stop yderligere kørsel, hvis samtykke ikke gives
+        }
+      }
+
+      /* ---------------------- Sticky Header ---------------------- */
+      const header = document.querySelector('header');
+      window.addEventListener('scroll', () => {
+        header.classList.toggle('sticky', window.scrollY > 0);
+        // Luk mobilmenuen, hvis den er åben
+        const menuIcon = document.querySelector('#menu-icon');
+        const navbar = document.querySelector('.navbar');
+        if (menuIcon && navbar) {
+          menuIcon.classList.remove('bx-x');
+          navbar.classList.remove('open');
+        }
+      });
+
+      /* ---------------------- Mobile Menu Toggle ---------------------- */
+      const menu = document.getElementById('menu-icon');
+      const navbar = document.querySelector('.navbar');
+      if (menu && navbar) {
+        menu.onclick = () => {
+          menu.classList.toggle('bx-x');
+          navbar.classList.toggle('open');
+        };
+      }
+
+      /* ---------------------- ScrollReveal Animationer ---------------------- */
+      const sr = ScrollReveal({
+        distance: '30px',
+        duration: 2500,
+        reset: true
+      });
+      sr.reveal('.home-text', { delay: 200, origin: 'left' });
+      sr.reveal('.home-img', { delay: 200, origin: 'right' });
+      sr.reveal('.container, .about, .menu, .contact', { delay: 200, origin: 'bottom' });
+
+      /* ---------------------- Login/Signup Knap ---------------------- */
+      const loginButton = document.getElementById('login-user');
+      if (loginButton) {
+        loginButton.addEventListener('click', (e) => {
+          e.preventDefault();
+          console.log('Login/Signup knappen blev trykket');
+          // Omdiriger til login-siden
+          window.location.href = '/login.html';
+        });
+      } else {
+        console.error('Login/Signup knappen kunne ikke findes i DOM.');
+      }
+    });
+  </script>
 </body>
 </html>
