@@ -29,41 +29,34 @@ body {
     max-width: 400px; /* Limits the width of the box */
 }
 
-/* Logo styling */
-.login-logo {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    margin-bottom: 20px;
-}
-
 /* Header styling */
 .login-header {
     font-size: 24px;
     font-weight: bold;
-    margin-bottom: 10px;
-}
-
-/* Sub-text (description) styling */
-.sub-text {
-    font-size: 14px;
-    color: #7a7a7a;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 /* Input field styles */
-input[type="text"], input[type="password"] {
+input[type="email"],
+input[type="password"] {
     width: 100%;
     padding: 12px;
-    margin-bottom: 20px;
+    margin: 10px 0;
     border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
+    border-radius: 5px;
     font-size: 16px;
+    box-sizing: border-box; /* Sikrer, at padding ikke ændrer størrelsen */
+    display: block;
+}
+
+/* Ensure both inputs have the same height */
+input[type="email"],
+input[type="password"] {
+    height: 45px;
 }
 
 /* Button styling */
-.btn {
+button {
     width: 100%;
     padding: 12px;
     background-color: #f7b2d9;
@@ -76,7 +69,7 @@ input[type="text"], input[type="password"] {
 }
 
 /* Button hover effect */
-#continue-btn:hover {
+button:hover {
     background-color: #e091b6;
 }
 
@@ -96,30 +89,4 @@ input[type="text"], input[type="password"] {
 /* Sign-up link hover effect */
 .signup-link:hover {
     text-decoration: underline;
-}
-
-/* Select (dropdown) styles */
-select {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-size: 16px;
-    background-color: white;
-}
-
-/* Form labels */
-label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 14px;
-    color: #333;
-    text-align: left;
-}
-
-/* Adjust button hover for consistency */
-.btn:hover {
-    background-color: #e091b6;
 }
