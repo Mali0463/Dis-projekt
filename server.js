@@ -8,7 +8,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 
 const PORT = process.env.PORT || 6005;
-const JWT_SECRET = process.env.JWT_SECRET || 'EnLangHemmeligNoegle123XYZ!';
+const JWT_SECRET = process.env.JWT_SECRET;
 const TOKEN_EXPIRATION = '1h'; // Access token gyldighed
 const REFRESH_EXPIRATION = '7d'; // Refresh token gyldighed
 
